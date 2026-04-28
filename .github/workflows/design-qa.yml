@@ -1,0 +1,48 @@
+name: Design QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: Website URL to scan
+        required: true
+        default: http://127.0.0.1:9001/
+      figma_url:
+        description: Figma frame URL
+        required: true
+      create_issues:
+        description: Create GitHub issues for findings
+        required: true
+        default: "false"
+
+jobs:
+  design-qa:
+    runs-on: ubuntu-latest
+    env:
+      FIGMA_URL: ${{ inputs.figma_url }}
+      FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+      TARGET_URL: ${{ inputs.target_url }}
+      GITHUB_TOKEN: ${{ secrets.QA_GITHUB_TOKEN }}
+      GITHUB_REPO: ComputanTeam/uoft-facilities-services
+      CREATE_GITHUB_ISSUES: ${{ inputs.create_issues }}
+      AI_PROVIDER: none
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run qa:design
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: design-qa-report
+          path: reports/design-qa/
+

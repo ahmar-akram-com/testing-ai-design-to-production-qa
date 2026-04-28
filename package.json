@@ -6,7 +6,10 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "qa": "npm run build && playwright test"
+    "qa": "npm run build && playwright test",
+    "qa:design": "node src/run-design-qa.js",
+    "qa:local": "node src/run-design-qa.js --target-url http://127.0.0.1:9001/",
+    "qa:staging": "node src/run-design-qa.js"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +18,10 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.2",
     "@playwright/test": "^1.59.1",
+    "dotenv": "^17.4.2",
+    "pixelmatch": "^7.1.1",
     "playwright": "^1.59.1",
+    "pngjs": "^7.0.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.10"
   }

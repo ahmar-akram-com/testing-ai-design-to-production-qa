@@ -1,8 +1,12 @@
 node_modules/
 dist/
+reports/
 test-results/
 playwright-report/
 coverage/
+.env
+.env.*
+!.env.example
 .DS_Store
 *.log
 figma*.png
