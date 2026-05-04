@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design-to-Production Dashboard</title>
+  <style>:root{--lightningcss-light: ;--lightningcss-dark:initial;color-scheme:dark;color:#e6edf3;background:#0d1117;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif}html,body{background:#0d1117;min-height:100%;margin:0}button,input,select{font:inherit}.shell{box-sizing:border-box;flex-direction:column;gap:12px;min-height:100vh;padding:14px;display:flex}.toolbar{background:#111827;border:1px solid #1f2a37;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-items:end;gap:12px;padding:12px;display:grid}.field{flex-direction:column;gap:6px;min-width:0;display:flex}.field--wide{grid-column:span 2;min-width:0}.field--narrow{width:120px}.field label{color:#9ca3af;font-size:12px}.field input,.field select{box-sizing:border-box;color:#e6edf3;background:#0b1220;border:1px solid #334155;width:100%;padding:10px 12px}.button{color:#fff;cursor:pointer;background:#2563eb;border:1px solid #2563eb;padding:10px 14px}.button--ghost{color:#cbd5e1;background:0 0;border-color:#334155}.button:disabled,.linkish:disabled{opacity:.5;cursor:not-allowed}.layout{flex:1;grid-template-columns:minmax(360px,440px) minmax(0,1fr);gap:16px;min-height:0;display:grid}.panel{background:#111827;border:1px solid #1f2a37;flex-direction:column;min-height:0;display:flex}.panel__header{border-bottom:1px solid #1f2a37;justify-content:space-between;align-items:start;gap:16px;padding:16px;display:flex}.panel h1,.panel h2,.card h3{margin:0;font-size:16px}.muted{color:#94a3b8;margin:4px 0 0;font-size:13px}.status{color:#cbd5e1;border:1px solid #334155;padding:8px 10px;font-size:12px}.list{flex-direction:column;gap:10px;padding:16px;display:flex;overflow:auto}.summary{border-bottom:1px solid #1f2a37;gap:14px;padding:16px;display:grid}.summary--top{border-bottom:0;padding:0}.section{border-bottom:1px solid #1f2a37;gap:12px;padding:16px;display:grid}.section__head{justify-content:space-between;align-items:start;gap:12px;display:flex}.section__head-actions{flex-wrap:wrap;align-items:center;gap:8px;display:flex}.section__head--compact h3{margin:0;font-size:14px}.section__head--compact p{margin-top:4px}.webhook-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:end;gap:10px 12px;display:grid}.webhook-form .field--wide{grid-column:span 2}.check{color:#cbd5e1;align-items:center;gap:8px;font-size:12px;display:inline-flex}.check input{margin:0}.webhook-list{gap:10px;display:grid}.webhook-card{cursor:pointer;background:#0b1220;border:1px solid #263244;gap:6px;padding:12px;display:grid}.webhook-card--active{background:#0f172a;border-color:#2563eb}.webhook-card__head{justify-content:space-between;align-items:center;gap:12px;display:flex}.webhook-card__meta{color:#94a3b8;overflow-wrap:anywhere;font-size:12px}.webhook-card__actions{flex-wrap:wrap;gap:10px;margin-top:4px;display:flex}.webhook-deliveries,.billing{gap:10px;display:grid}.billing-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;display:grid}.billing-actions{flex-wrap:wrap;gap:8px;display:flex}.tuning{gap:10px;display:grid}.tuning-tags{flex-wrap:wrap;gap:8px;display:flex}.releases,.announcements{gap:10px;display:grid}.announcement-banner{color:#fde68a;background:#451a03;border:1px solid #92400e;padding:10px 12px}.announcement-card{background:#0b1220;border:1px solid #263244;gap:10px;padding:12px;display:grid}.announcement-card--unread{background:#111827;border-color:#7c3aed}.announcement-card__head{justify-content:space-between;gap:12px;display:flex}.announcement-card__meta{color:#94a3b8;margin:4px 0 0;font-size:12px}.announcement-list{gap:4px;margin:0;padding-left:18px;display:grid}.announcement-card__actions{flex-wrap:wrap;justify-content:flex-end;gap:8px;display:flex}.release-banner{color:#fecaca;background:#450a0a;border:1px solid #7f1d1d;padding:10px 12px}.release-card{background:#0b1220;border:1px solid #263244;gap:10px;padding:12px;display:grid}.release-card__head{justify-content:space-between;align-items:start;gap:12px;display:flex}.release-list{gap:6px;margin:0;padding-left:18px;display:grid}.release-history{gap:8px;display:grid}.release-history__item{background:#0b1220;border:1px solid #263244;justify-content:space-between;gap:12px;padding:10px 12px;display:flex}.release-management{gap:12px;display:grid}.management-form{background:#0b1220;border:1px solid #263244;gap:10px;padding:12px;display:grid}.management-form textarea{box-sizing:border-box;color:#e6edf3;resize:vertical;background:#111827;border:1px solid #334155;width:100%;padding:10px 12px}.delivery{background:#0b1220;border:1px solid #263244;gap:6px;padding:12px;display:grid}.delivery--delivered{border-left:3px solid #22c55e}.delivery--dead_lettered{border-left:3px solid #ef4444}.delivery__head{justify-content:space-between;align-items:center;gap:12px;display:flex}.delivery__meta{color:#94a3b8;overflow-wrap:anywhere;font-size:12px}.summary-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;display:grid}.summary-grid--usage{grid-template-columns:repeat(5,minmax(0,1fr))}.usage-panel{background:#0b1220;border:1px solid #263244;gap:10px;padding:14px;display:grid}.app-shell[data-route=dashboard] .usage-panel{display:none}.usage-panel__head{justify-content:space-between;align-items:start;gap:12px;display:flex}.usage-panel__head h3{margin:0;font-size:14px}.usage-panel__head .muted{margin-top:4px}.summary-card{background:#0b1220;border:1px solid #263244;flex-direction:column;gap:8px;padding:12px;display:flex}.summary-card span{color:#94a3b8;font-size:12px}.summary-card strong{color:#e6edf3;font-size:20px}.summary-card--metric{min-height:96px}.summary-card--metric strong{margin-top:8px;font-size:20px}.summary-card__head{color:#94a3b8;justify-content:space-between;align-items:center;gap:12px;font-size:12px;display:flex}.summary-card__icon{color:#93c5fd;background:#2563eb29;border-radius:999px;place-items:center;width:24px;height:24px;font-size:12px;display:inline-grid}.run-card{text-align:left;width:100%;color:inherit;cursor:pointer;background:#0b1220;border:1px solid #263244;padding:12px;display:block}.run-card__top{justify-content:space-between;align-items:center;gap:12px;display:flex}.run-card__meta{color:#94a3b8;margin-top:4px;font-size:12px}.run-card__links{flex-wrap:wrap;gap:10px;margin-top:10px;display:flex}.recent-runs-card{background:#0f172acc;border:1px solid #94a3b824;border-radius:18px;gap:12px;padding:16px;display:grid}.recent-runs-list{gap:8px;display:grid}.recent-run{color:#e2e8f0;text-align:left;background:#0206176b;border:1px solid #94a3b81f;border-radius:14px;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:10px 12px;display:grid}.recent-run--selected{background:#2563eb29;border-color:#6366f157}.recent-run__time{font-weight:600}.recent-run__meta,.recent-run__runtime{color:#94a3b8;font-size:12px}.recent-run__runtime{text-align:right;min-width:64px}.linkish{color:#93c5fd;cursor:pointer;text-underline-offset:2px;background:0 0;border:0;padding:0;font-size:12px;text-decoration:underline}.pill{text-transform:uppercase;border:1px solid #0000;align-items:center;padding:4px 8px;font-size:12px;display:inline-flex}.pill--pass{color:#86efac;background:#052e16;border-color:#14532d}.pill--warn{color:#fde68a;background:#451a03;border-color:#713f12}.pill--fail{color:#fca5a5;background:#450a0a;border-color:#7f1d1d}.detail{padding:16px;overflow:auto}.detail-grid{grid-template-columns:280px minmax(0,1fr);gap:12px;margin-bottom:12px;display:grid}.card{background:#0b1220;border:1px solid #263244;padding:14px}.kv{gap:12px;margin:12px 0 0;display:grid}.kv div{gap:4px;display:grid}.kv dt{color:#94a3b8;font-size:12px}.kv dd{color:#e6edf3;margin:0}.card--stack{gap:12px;margin-bottom:12px;display:grid}.feedback-form{grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;gap:10px 12px;display:grid}.feedback-form .field--wide{grid-column:span 2}.feedback-form textarea{box-sizing:border-box;color:#e6edf3;resize:vertical;background:#0b1220;border:1px solid #334155;width:100%;padding:10px 12px}.feedback-list{gap:10px;display:grid}.feedback{background:#0b1220;border:1px solid #263244;gap:6px;padding:12px;display:grid}.feedback--positive{border-left:3px solid #22c55e}.feedback--neutral{border-left:3px solid #f59e0b}.feedback--negative{border-left:3px solid #ef4444}.feedback__head{justify-content:space-between;align-items:center;gap:12px;display:flex}.feedback__meta{color:#94a3b8;overflow-wrap:anywhere;font-size:12px}.feedback p{margin:0}.report-groups{gap:8px;margin-top:12px;display:grid}.report-patterns{gap:10px;margin-top:16px;display:grid}.report-patterns h4{color:#cbd5e1;margin:0;font-size:13px}.report-pattern{background:#0b1220;border:1px solid #263244;gap:6px;padding:12px;display:grid}.report-pattern__head{justify-content:space-between;align-items:center;gap:12px;display:flex}.report-pattern__meta{color:#94a3b8;font-size:12px}.report-pattern p{color:#e6edf3;margin:0;font-size:13px}.report-group{color:#cbd5e1;text-align:left;cursor:pointer;background:#111827;border:1px solid #334155;grid-template-columns:1fr auto auto;align-items:center;gap:8px;padding:10px 12px;display:grid}.report-group strong{color:#e6edf3}.report-group em{color:#94a3b8;font-size:12px;font-style:normal}.report-group--active{background:#0f172a;border-color:#2563eb}.issue{background:#111827;border-left:3px solid #334155;margin-top:10px;padding:10px 12px}.issue__head{color:#94a3b8;justify-content:space-between;align-items:center;gap:12px;font-size:12px;display:flex}.issue p{margin:8px 0 0}.issue__status{margin-top:8px}.issue-status-form{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px;margin-top:10px;display:grid}.issue-status-form .field--wide{grid-column:span 3}.issue-status-form textarea{box-sizing:border-box;color:#e6edf3;resize:vertical;background:#0b1220;border:1px solid #334155;width:100%;padding:10px 12px}.snapshot-tabs{gap:8px;margin:12px 0;display:flex}.tab{color:#cbd5e1;cursor:pointer;background:0 0;border:1px solid #334155;padding:8px 12px}.tab--active{color:#fff;background:#2563eb;border-color:#2563eb}.code{color:#cbd5e1;white-space:pre-wrap;word-break:break-word;background:#020617;border:1px solid #1f2937;max-height:420px;margin:0;padding:12px;overflow:auto}.empty{color:#94a3b8;border:1px dashed #334155;padding:18px}.empty--run{text-align:center;background:#0f172ac7;border-style:solid;place-items:center;gap:14px;min-height:70vh;display:grid}.empty--run p{color:#cbd5e1;max-width:44ch;margin:0;font-size:16px;line-height:1.5}@media (width<=1200px){.toolbar{grid-template-columns:1fr 1fr}.webhook-form{grid-template-columns:1fr}.webhook-form .field--wide{grid-column:auto}.layout,.detail-grid,.feedback-form{grid-template-columns:1fr}.feedback-form .field--wide{grid-column:auto}.issue-status-form{grid-template-columns:1fr}.issue-status-form .field--wide{grid-column:auto}.summary-grid,.summary-grid--usage,.billing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}:root{--lightningcss-light: ;--lightningcss-dark:initial;color-scheme:dark;color:#e5eefb;background:radial-gradient(circle at 0 0,#3b82f629,#0000 30%),radial-gradient(circle at 100% 0,#10b9811f,#0000 22%),linear-gradient(#050816 0%,#0a1020 38%,#08111d 100%)}body{background:0 0}.shell{gap:18px;width:min(1600px,100vw - 32px);margin:0 auto;padding:20px 0 28px}.hero{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:linear-gradient(135deg,#0f172af0,#0f172ac7),radial-gradient(circle at 100% 0,#3b82f624,#0000 35%);border:1px solid #94a3b82e;border-radius:22px;grid-template-columns:minmax(0,1.1fr) minmax(280px,.85fr) minmax(320px,.95fr);align-items:stretch;gap:18px;padding:22px;display:grid;box-shadow:0 24px 70px #0206176b}.hero__copy{align-content:center;gap:12px;display:grid}.eyebrow{color:#93c5fd;letter-spacing:0;background:#2563eb24;border:1px solid #3b82f661;border-radius:999px;align-items:center;gap:8px;width:fit-content;padding:6px 10px;font-size:12px;display:inline-flex}.hero h1{letter-spacing:0;margin:0 0 15px;font-size:clamp(28px,3vw,48px);line-height:1.05}.app-shell[data-route=dashboard] .hero{grid-template-columns:minmax(0,1fr) minmax(320px,.72fr);gap:12px;padding:12px 16px}.app-shell[data-route=dashboard] .hero__hint,.app-shell[data-route=dashboard] .hero__art,.app-shell[data-route=dashboard] .hero p{display:none}.app-shell[data-route=dashboard] .hero p{font-size:13px}.hero p{color:#a7b6ca;max-width:68ch;margin:0;font-size:15px;line-height:1.6}.hero__actions{flex-wrap:wrap;align-items:center;gap:10px;display:flex}.hero__hint{color:#94a3b8;align-items:center;gap:8px;font-size:12px;display:inline-flex}.hero__hint code{color:#e2e8f0;background:#0f172ab3;border:1px solid #94a3b838;border-radius:999px;padding:5px 8px}.hero__visual{background:#02061761;border:1px solid #94a3b824;border-radius:18px;align-content:start;gap:12px;padding:16px;display:grid}.hero__art{background:radial-gradient(circle at top,#6366f12e,#0000 42%),#02061752;border:1px solid #94a3b824;border-radius:18px;place-items:center;display:grid;overflow:hidden}.app-shell[data-route=dashboard] .hero__art{display:none}.hero-art{width:100%;min-height:270px;position:relative}.hero-art__badge{color:#e2e8f0;background:#0f172ad6;border:1px solid #94a3b824;border-radius:14px;align-items:center;gap:8px;padding:8px 10px;font-size:12px;display:inline-flex;position:absolute;top:24px;left:20px}.hero-art__dot{background:linear-gradient(135deg,#fb7185,#8b5cf6 55%,#38bdf8);border-radius:999px;width:10px;height:10px}.hero-art__frame{background:#0f172ad1;border:1px solid #94a3b833;border-radius:18px;position:absolute;box-shadow:0 18px 48px #02061759}.hero-art__frame--design{width:120px;height:168px;top:68px;left:34px}.hero-art__frame--design:before,.hero-art__frame--design:after,.hero-art__frame--page:before,.hero-art__frame--page:after{content:"";border:1px solid #6366f16b;border-radius:10px;position:absolute}.hero-art__frame--design:before{width:88px;height:24px;top:18px;left:16px}.hero-art__frame--design:after{width:88px;height:62px;top:56px;left:16px}.hero-art__frame--page{background:linear-gradient(#0f172ae0,#020617bf),radial-gradient(circle at 0 0,#3b82f633,#0000 42%);width:164px;height:212px;top:30px;right:18px;transform:rotate(-4deg)}.hero-art__frame--page:before{width:126px;height:24px;top:26px;left:18px}.hero-art__frame--page:after{width:126px;height:92px;top:64px;left:18px}.hero-art__connector{opacity:.7;border:1px dashed #6366f185;border-radius:18px;width:116px;height:84px;position:absolute;top:120px;left:132px}.hero-art__marker{color:#020617;border-radius:999px;place-items:center;width:30px;height:30px;font-size:12px;font-weight:700;display:grid;position:absolute}.hero-art__marker--one{background:#f43f5e;top:144px;left:62px}.hero-art__marker--two{background:#f59e0b;top:108px;right:74px}.hero-art__marker--three{background:#22c55e;bottom:26px;right:112px}.hero__visual-head{justify-content:space-between;align-items:center;gap:12px;display:flex}.hero-chart,.chart-shell{min-height:180px}.chart{width:100%;height:auto;display:block}.chart text{fill:#94a3b8;font-size:11px}.hero__legend{color:#a7b6ca;flex-wrap:wrap;gap:14px;font-size:12px;display:flex}.hero__legend span{align-items:center;gap:8px;display:inline-flex}.legend-dot{border-radius:999px;width:9px;height:9px;display:inline-block}.legend-dot--pass{background:#22c55e}.legend-dot--warn{background:#f59e0b}.legend-dot--fail{background:#ef4444}.toolbar{-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);background:#0f172ab8;border:1px solid #94a3b829;border-radius:20px;align-items:start;gap:14px;padding:18px;box-shadow:0 18px 50px #02061742}.toolbar__actions{flex-wrap:wrap;grid-column:1/-1;gap:10px;padding-top:4px;display:flex}.layout{gap:18px}.panel,.card,.section,.announcement-card,.release-card,.report-pattern,.issue,.webhook-card,.billing-grid .summary-card,.summary-card,.summary-chart-card,.detail-chart-card,.usage-panel{border-radius:18px}.panel{-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);background:#0f172ac2;border:1px solid #94a3b824;box-shadow:0 18px 50px #02061747}.panel__header,.section{border-color:#94a3b81f}.panel__header{background:linear-gradient(#0f172afa,#0f172aa8);padding:18px 18px 16px}.panel h1,.panel h2,.card h3{letter-spacing:0;font-size:15px}.status{background:#02061780;border:1px solid #94a3b82e;border-radius:999px;padding:10px 12px}.summary{gap:14px}.summary-panel{gap:14px;padding:0 18px 18px;display:grid}.summary--top .summary-panel{padding:0}.summary-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.summary-grid--metrics{grid-template-columns:repeat(6,minmax(0,1fr))}.summary-grid--kpi,.summary-grid--usage{grid-template-columns:repeat(5,minmax(0,1fr))}.summary-card{background:linear-gradient(#0f172af5,#020617d6);border:1px solid #94a3b824;padding:14px 14px 12px;box-shadow:inset 0 1px #ffffff08}.summary-card--accent{background:linear-gradient(135deg,#2563eb42,#0f172af5),linear-gradient(#0f172af5,#020617d6);border-color:#3b82f657}.summary-card em{color:#8ea1ba;font-size:12px;font-style:normal}.summary-chart-card,.detail-chart,.usage-panel{background:#0206176b;border:1px solid #94a3b824;padding:14px}.summary-chart-card--left{min-height:240px}.chart-shell{margin-top:12px}.usage-panel__head{justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;display:flex}.quota{gap:8px;display:grid}.quota__label{color:#94a3b8;justify-content:space-between;gap:12px;font-size:11px;display:flex}.quota__track{background:#1e293be6;border-radius:999px;height:8px;position:relative;overflow:hidden}.quota__fill{border-radius:inherit;background:linear-gradient(90deg,#38bdf8,#22c55e);position:absolute;inset:0 auto 0 0}.empty--chart{place-items:center;min-height:180px;display:grid}.run-card{background:linear-gradient(#0f172af5,#020617d1);border:1px solid #94a3b824;position:relative;overflow:hidden;box-shadow:0 12px 30px #02061733}.run-card:before{content:"";background:linear-gradient(#38bdf8,#22c55e);width:4px;position:absolute;inset:0 auto 0 0}.run-card__top{align-items:start}.run-card__meta{overflow-wrap:anywhere}.detail-grid{gap:14px}.card{background:linear-gradient(#0f172aeb,#020617c7);border:1px solid #94a3b824;box-shadow:0 16px 36px #02061733}.detail-links{flex-wrap:wrap;gap:10px;margin-top:12px;display:flex}.detail-chart-card{margin-top:14px}.issue{background:#0f172ad1;border:1px solid #94a3b824}.issue--minor{border-color:#f59e0b61}.issue--major{border-color:#fb71856b}.issue--critical{border-color:#ef444480}.announcement-banner{background:#451a03cc;border-radius:14px}.announcement-card,.release-card,.report-pattern,.webhook-card{background:#0f172ad6;border:1px solid #94a3b824}.pill{border-radius:999px}.pill--pass{color:#86efac;background:#22c55e29}.pill--warn{color:#fcd34d;background:#f59e0b29}.pill--fail{color:#fca5a5;background:#ef444429}.button,.button--ghost,.tab,.linkish,.report-group{border-radius:12px}.button{background:linear-gradient(#3b82f6,#2563eb);box-shadow:0 10px 24px #2563eb38}.button--ghost{background:#0f172ad1;border-color:#94a3b83d}.field input,.field select,.field textarea{background:#020617b8;border-color:#94a3b838;border-radius:12px}.section__head{align-items:center}.section__head--compact h3{font-size:14px}.summary-chart-card .section__head--compact{margin-bottom:4px}@media (width<=1200px){.hero{grid-template-columns:1fr}.summary-grid,.summary-grid--metrics,.summary-grid--kpi,.summary-grid--usage{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar{grid-template-columns:1fr 1fr}}@media (width<=760px){.shell{width:calc(100vw - 20px);padding-top:10px}.hero,.toolbar,.panel,.section,.card,.summary-chart-card,.detail-chart,.usage-panel{border-radius:16px}.summary-grid,.summary-grid--metrics,.summary-grid--kpi,.summary-grid--usage,.billing-grid,.detail-grid{grid-template-columns:1fr}.hero__actions,.toolbar__actions,.detail-links,.billing-actions{flex-direction:column;align-items:stretch}}.app-shell{background:0 0;grid-template-columns:264px minmax(0,1fr);min-height:100vh;display:grid}.app-shell__content{gap:12px;min-width:0;padding:16px 18px 22px;display:grid}.sidebar{-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);background:#020617b8;border-right:1px solid #94a3b824;align-self:start;gap:20px;min-height:100vh;padding:22px 18px;display:grid;position:sticky;top:0}.sidebar__brand,.sidebar__user{align-items:center;gap:12px;display:flex}.sidebar__mark,.avatar{color:#f8fafc;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:14px;place-items:center;width:44px;height:44px;font-weight:700;display:grid}.sidebar__brand strong,.sidebar__user strong{display:block}.sidebar__nav{gap:8px;display:grid}.sidebar__item{color:#cbd5e1;text-align:left;cursor:pointer;background:0 0;border:1px solid #0000;border-radius:14px;padding:12px 14px}.sidebar__item:hover,.sidebar__item:focus-visible{background:#0f172ae6;border-color:#94a3b82e;outline:none}.sidebar__item--active{color:#f8fafc;background:linear-gradient(#6366f133,#0f172aeb);border-color:#6366f147}.sidebar__help{background:#0f172acc;border:1px solid #94a3b824;border-radius:18px;margin-top:auto;padding:16px}.topbar{justify-content:space-between;align-items:center;gap:16px;display:flex}.topbar__left,.topbar__right{align-items:center;gap:12px;display:flex}.topbar__select{color:#94a3b8;gap:6px;font-size:12px;display:grid}.topbar__select select{min-width:220px}.env-badge{color:#86efac;background:#22c55e1f;border:1px solid #22c55e38;border-radius:999px;align-items:center;gap:8px;padding:8px 12px;font-size:12px;display:inline-flex}.icon-button{color:#e2e8f0;background:#0f172ab8;border:1px solid #94a3b829;border-radius:14px;align-items:center;gap:10px;padding:10px 12px;display:inline-flex}.icon-button--profile{justify-content:center;min-width:44px;font-weight:700}.icon-bell{border:2px solid;border-radius:999px 999px 4px 4px;width:14px;height:14px;display:inline-block;position:relative}.icon-bell:after{content:"";background:currentColor;border-radius:999px;width:4px;height:4px;position:absolute;bottom:-5px;left:50%;transform:translate(-50%)}.run-config{background:#0f172abd;border:1px solid #94a3b824;border-radius:20px;gap:14px;padding:18px;display:grid;box-shadow:0 18px 50px #02061738}.run-config .toolbar{box-shadow:none;background:0 0;border:0;grid-template-columns:repeat(12,minmax(0,1fr));align-items:start;padding:0}.run-config .toolbar>.field{grid-column:span 3}.run-config .toolbar>.toolbar__actions,.run-config .toolbar>.advanced-settings{grid-column:1/-1}.run-config .toolbar__actions{justify-content:flex-start}.latest-run-card{gap:14px;display:grid}.latest-run-card__ring{grid-template-columns:auto 1fr;align-items:center;gap:18px;display:grid}.score-ring{width:120px;height:120px;transform:rotate(-90deg)}.score-ring circle{fill:none;stroke-width:12px;stroke:#334155bf}.score-ring__value{stroke:url(#trend-fill);stroke-dasharray:289;stroke-dashoffset:38px;stroke:#8b5cf6!important}.score-ring__label{gap:4px;display:grid}.score-ring__label strong{font-size:34px;line-height:1}.score-ring__label span{color:#94a3b8;font-size:12px}.latest-run-card__meta{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin:0;display:grid}.latest-run-card__meta div{gap:4px;display:grid}.latest-run-card__meta dt{color:#94a3b8;text-transform:uppercase;letter-spacing:0;font-size:11px}.latest-run-card__meta dd{color:#f8fafc;margin:0;font-weight:600}.app-shell[data-route=dashboard] .admin-section,.app-shell[data-route=settings] .hero,.app-shell[data-route=settings] .run-config,.app-shell[data-route=settings] .summary,.app-shell[data-route=settings] .panel--detail{display:none}.app-shell[data-route=settings] .admin-section{display:grid}.app-shell[data-route=settings] #history-list{display:none}.app-shell[data-route=settings] .app-shell__content{grid-template-columns:1fr}.run-config .toolbar__actions{grid-column:1/-1}@media (width<=1200px){.app-shell{grid-template-columns:1fr}.sidebar{border-bottom:1px solid #94a3b824;border-right:0;min-height:auto;position:relative}.app-shell__content{padding:18px}.topbar{flex-direction:column;align-items:stretch}}@media (width<=760px){.hero,.topbar,.run-config,.panel,.summary-chart-card,.detail,.usage-panel{border-radius:16px}.latest-run-card__ring{grid-template-columns:1fr;justify-items:start}}.workspace{grid-template-columns:minmax(0,1fr);gap:16px;min-height:0;display:grid}.workspace--focus{gap:16px}.workspace__primary,.workspace__table,.workspace__details{background:#0f172ac7;border:1px solid #94a3b824;padding:16px;box-shadow:0 18px 50px #02061738}.workspace__primary{gap:14px;min-height:70vh;display:grid}.workspace__below{grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);align-items:start;gap:16px;display:grid}.workspace__table{gap:14px;display:grid}.viewer-badge{color:#93c5fd;background:#2563eb1f;border:1px solid #60a5fa38;border-radius:999px;align-items:center;padding:8px 12px;font-size:12px;display:inline-flex}.diff-toolbar{background:#0206177a;border:1px solid #94a3b81f;border-radius:16px;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;display:flex}.viewer-tabs{flex-wrap:wrap;gap:8px;display:flex}.viewer-tab{color:#cbd5e1;background:#0206176b;border:1px solid #94a3b824;border-radius:12px;padding:10px 14px}.viewer-tab--active{color:#f8fafc;background:#2563eb2e;border-color:#6366f14d}.viewer-controls{color:#94a3b8;align-items:center;gap:10px;font-size:12px;display:flex}.viewer-controls input[type=range]{width:140px}.viewer-zoom{align-items:center;gap:8px;display:inline-flex}.viewer-zoom button{color:#e2e8f0;background:#0206176b;border:1px solid #94a3b824;border-radius:8px;width:28px;height:28px}.diff-frame{background:radial-gradient(circle at top,#3b82f624,#0000 45%),#020617eb;border:1px solid #94a3b824;border-radius:18px;padding:12px;position:relative}.diff-frame__chrome{gap:6px;margin-bottom:10px;display:flex}.diff-frame__chrome span{background:#94a3b866;border-radius:999px;width:8px;height:8px}.diff-frame__page{background:linear-gradient(#f4f7fb 0%,#e7edf9 100%);border-radius:14px;min-height:70vh;position:relative;overflow:hidden}.mock-site{color:#0f172a;padding:22px 24px;position:absolute;inset:0}.mock-site__top{justify-content:space-between;align-items:center;gap:16px;font-size:11px;font-weight:600;display:flex}.mock-site__brand{letter-spacing:.1em;font-size:18px}.mock-site__links{color:#334155;gap:18px;display:flex}.mock-site__cta{color:#fff;background:linear-gradient(#6366f1,#4f46e5);border:0;border-radius:999px;padding:10px 16px}.mock-site__hero{text-align:center;max-width:280px;margin:52px auto 0}.mock-site__eyebrow{color:#4f46e5;letter-spacing:.18em;text-transform:uppercase;margin:0 0 8px;font-size:12px}.mock-site__hero h3{color:#0f172a;margin:0;font-size:34px;line-height:1.05}.mock-site__hero p{color:#475569;margin:10px 0 0}.mock-site__actions{justify-content:center;gap:10px;margin-top:18px;display:flex}.mock-site__primary,.mock-site__secondary{border:0;border-radius:999px;padding:10px 16px}.mock-site__primary{color:#fff;background:linear-gradient(#6366f1,#4f46e5)}.mock-site__secondary{color:#0f172a;background:#fff;box-shadow:inset 0 0 0 1px #94a3b842}.diff-marker{color:#0f172a;border:2px solid #0000;border-radius:999px;width:34px;height:34px;font-weight:700;position:absolute}.diff-marker--danger{background:#f43f5e;border-color:#ffffffa6}.diff-marker--warning{background:#fbbf24;border-color:#ffffffa6}.diff-marker--success{background:#22c55e;border-color:#ffffffa6}.diff-marker--danger.diff-marker--danger,.diff-marker--warning.diff-marker--warning,.diff-marker--success.diff-marker--success{box-shadow:0 0 0 6px #ffffff29}.diff-marker--active,.diff-marker--hovered{transform:scale(1.05);box-shadow:0 0 0 8px #6366f147}.diff-marker--danger{top:32px;left:40px}.diff-marker--warning{top:110px;right:64px}.diff-marker--success{bottom:36px;left:72px}.diff-legend,.legend-row{color:#a7b6ca;flex-wrap:wrap;align-items:center;gap:14px;font-size:12px;display:flex}.legend-dot--danger{background:#f43f5e}.legend-dot--success{background:#22c55e}.issue-table-wrap{border:1px solid #94a3b824;border-radius:16px;overflow:auto}.issue-table{border-collapse:collapse;background:#0206177a;width:100%;min-width:920px}.issue-table th,.issue-table td{text-align:left;border-bottom:1px solid #94a3b814;padding:14px 12px;font-size:13px}.issue-table th{color:#94a3b8;background:#0f172aeb;font-weight:600}.issue-row{cursor:pointer}.issue-row:hover,.issue-row--selected{background:#2563eb1f}.issue-row--critical{border-left:3px solid #ef4444;box-shadow:inset 3px 0 #ef444459}.issue-row--major{border-left:3px solid #f59e0b}.issue-row--minor{border-left:3px solid #22c55e}.issue-row--critical.issue-row--selected{background:#ef444424;box-shadow:inset 0 0 0 1px #ef444480,0 0 0 1px #ef444424,0 0 24px #ef44442e}.issue-row--major.issue-row--selected{background:#f59e0b1f;box-shadow:inset 0 0 0 1px #f59e0b5c}.issue-row--minor.issue-row--selected{background:#22c55e1f;box-shadow:inset 0 0 0 1px #22c55e42}.workspace__details{align-content:start;gap:14px;display:grid}.workspace__details--critical{border-color:#ef444466;box-shadow:0 0 0 1px #ef44442e,0 0 34px #ef444429,0 18px 50px #02061738}.workspace__details--major{border-color:#f59e0b57}.issue-inspector{gap:12px;display:grid}.issue-inspector__head,.detail-nav{justify-content:space-between;align-items:center;gap:10px;display:flex}.detail-nav__button{color:#e2e8f0;background:#0206176b;border:1px solid #94a3b824;border-radius:8px;width:28px;height:28px}.issue-inspector h3{margin:0;font-size:24px;line-height:1.1}.inspector-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin:0;display:grid}.inspector-grid div{gap:4px;display:grid}.inspector-grid dt,.inspector-section__label{color:#94a3b8;text-transform:uppercase;font-size:11px}.inspector-grid dd,.inspector-section p,.inspector-section code{color:#e2e8f0;margin:0;font-size:13px}.inspector-section{background:#0206176b;border:1px solid #94a3b824;border-radius:14px;padding:12px}.confidence{gap:8px;display:grid}.confidence__meta{color:#94a3b8;justify-content:space-between;align-items:center;gap:10px;display:flex}.confidence__meta strong{color:#e2e8f0}.developer-panel{background:#0f172ab8;border:1px solid #94a3b824;border-radius:16px;padding:12px 14px}.developer-panel summary{cursor:pointer;color:#cbd5e1;font-weight:600}.developer-panel__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px;display:grid}.developer-panel h4{color:#e2e8f0;margin:0 0 10px;font-size:13px}.app-shell[data-route=settings] .workspace,.app-shell[data-route=settings] .developer-panel{display:none}@media (width<=1200px){.hero,.workspace,.developer-panel__grid{grid-template-columns:1fr}.hero__art{min-height:210px}.advanced-settings__grid,.workspace__below{grid-template-columns:1fr}.workspace__primary{min-height:auto}}.summary-strip{box-sizing:border-box;background:#0f172abd;border:1px solid #94a3b824;border-radius:18px;align-items:center;gap:0;height:56px;padding:6px 10px;display:flex;overflow:hidden;box-shadow:0 18px 50px #0206172e}.summary-strip__primary,.summary-strip__item{border-right:1px solid #94a3b81f;flex-direction:row;justify-content:flex-start;align-items:baseline;gap:6px;min-width:0;padding:0 14px;display:flex}.summary-strip__primary{flex:1.15;padding-left:4px}.summary-strip__item:last-child{border-right:0}.summary-strip__primary span,.summary-strip__item span{color:#94a3b8;text-transform:uppercase;letter-spacing:0;font-size:11px}.summary-strip__primary strong{color:#f8fafc;font-size:30px;line-height:.9}.summary-strip__item strong{color:#f8fafc;font-size:16px;line-height:1}.summary-strip__item--fail strong{color:#fca5a5}.app-shell[data-route=dashboard] .panel--list{display:none}.app-shell[data-route=dashboard] .layout{grid-template-columns:minmax(320px,360px) minmax(0,1fr);align-items:start}.app-shell[data-route=dashboard] .runs-drawer{gap:12px;display:grid}.app-shell[data-route=settings] .runs-drawer{display:none}.runs-drawer{background:#0f172ab8;border:1px solid #94a3b824;border-radius:18px;padding:0 16px 16px;display:none;box-shadow:0 18px 50px #0206172e}.runs-drawer__head{display:none}.runs-drawer__grid{grid-template-columns:1fr;gap:12px;display:grid}.recent-runs-card--compact,.summary-chart-card--compact{gap:10px;padding:12px}.recent-runs-card--compact .recent-run{gap:10px;padding:8px 10px}.recent-runs-card--compact .recent-runs-list{gap:6px}.summary-chart-card--compact .chart-shell{min-height:130px}.app-shell[data-route=dashboard] .hero{box-sizing:border-box;grid-template-columns:minmax(0,1.05fr) minmax(260px,.62fr);align-items:center;gap:8px;padding:8px 12px;overflow:hidden}.app-shell[data-route=dashboard] .hero__copy{gap:6px}.app-shell[data-route=dashboard] .hero h1{font-size:clamp(20px,2vw,30px)}.app-shell[data-route=dashboard] .hero p{margin:0 0 20px;font-size:12px;line-height:1.25;display:block}.app-shell[data-route=dashboard] .hero__hint,.app-shell[data-route=dashboard] .hero__art{display:none}.app-shell[data-route=dashboard] .hero__visual{padding:16px}.app-shell[data-route=dashboard] .latest-run-card{gap:8px}.app-shell[data-route=dashboard] .score-ring{width:82px;height:82px}.app-shell[data-route=dashboard] .score-ring__label strong{font-size:26px}.app-shell[data-route=dashboard] .score-ring__label span{font-size:11px}.app-shell[data-route=dashboard] .latest-run-card__meta{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 10px}.app-shell[data-route=dashboard] .latest-run-card__meta dd{font-size:12px}.app-shell[data-route=dashboard] .run-config{box-sizing:border-box;gap:6px;padding:7px 12px}.app-shell[data-route=dashboard] .run-config .section__head{background:0 0;border:0;align-items:center;padding:0}.app-shell[data-route=dashboard] .run-config .section__head h2{font-size:10px;line-height:.9}.app-shell[data-route=dashboard] .run-config .section__head p{display:none}.app-shell[data-route=dashboard] .run-config .toolbar{flex-wrap:wrap;align-items:flex-end;gap:3px 6px;padding:0;display:flex}.app-shell[data-route=dashboard] .run-config .field--wide{flex:1.7 260px}.app-shell[data-route=dashboard] .run-config .field{flex:1 1 0;min-width:0}.app-shell[data-route=dashboard] .run-config .field--narrow{flex:0 0 108px}.app-shell[data-route=dashboard] .run-config .toolbar__actions{flex-wrap:nowrap;flex:none;place-self:end;gap:6px;padding-top:0}.app-shell[data-route=dashboard] .run-config .advanced-settings{background:0 0;border:0;flex:1 0 100%;padding:0}.app-shell[data-route=dashboard] .run-config .advanced-settings>summary{background:#02061757;border:1px solid #94a3b82e;border-radius:999px;align-items:center;width:fit-content;padding:4px 8px;font-size:11px;display:inline-flex}.app-shell[data-route=dashboard] .run-config .advanced-settings__grid{grid-template-columns:repeat(4,minmax(0,1fr))}.app-shell[data-route=dashboard] .run-config .field input,.app-shell[data-route=dashboard] .run-config .field select{min-height:28px;padding:4px 7px}:root{--lightningcss-light: ;--lightningcss-dark:initial;color-scheme:dark;color:#f8fafc;background:#070b16;font-size:14px}html,body{color:#f8fafc;background:#070b16;min-height:100%;margin:0}body{min-height:100vh}button,input,select,textarea{font:inherit}.app-shell{background:0 0;min-height:100vh;display:block}.page-shell{gap:18px;max-width:1440px;margin:0 auto;padding:20px 24px 28px;display:grid}.topnav{background:linear-gradient(#0f172af0,#020617e0);border:1px solid #1e293b;border-radius:20px;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;min-height:72px;padding:14px 18px;display:grid;box-shadow:0 18px 50px #02061747}.topnav__left,.topnav__right{flex-wrap:wrap;align-items:center;gap:12px;min-width:0;display:flex}.topnav__brand{align-items:center;gap:12px;min-width:0;display:flex}.topnav__brand strong{letter-spacing:0;font-size:16px}.topnav__select{color:#94a3b8;gap:6px;font-size:12px;display:grid}.topnav__select select{min-width:260px}.dashboard-grid{gap:18px;display:grid}.hero.hero--dashboard{background:linear-gradient(135deg,#0f172af5,#0f172ad6),radial-gradient(circle at 100% 0,#6366f12e,#0000 38%);border:1px solid #1e293b;border-radius:20px;grid-template-columns:minmax(0,1.2fr) minmax(340px,.8fr);gap:18px;min-height:180px;padding:18px;display:grid;box-shadow:0 18px 50px #02061747}.hero--dashboard .hero__art{display:none}.hero--dashboard .hero__copy{align-content:start;gap:8px}.hero--dashboard h1{font-size:clamp(26px,2vw,34px);line-height:1.02}.hero--dashboard p{color:#94a3b8;font-size:14px}.hero__visual{background:#0206176b;border:1px solid #1e293b;border-radius:20px;padding:16px}.latest-run-card{gap:14px}.score-ring__label strong{font-size:34px}.score-ring__label span,.latest-run-card__meta dt{font-size:14px}.run-config{background:#0f172abd;border:1px solid #1e293b;border-radius:20px;padding:18px;box-shadow:0 18px 50px #0206173d}.run-config .toolbar{box-shadow:none;background:0 0;border:0;grid-template-columns:repeat(12,minmax(0,1fr));align-items:start;gap:12px;padding:0;display:grid}.run-config .toolbar>.field--wide{grid-column:span 6}.run-config .toolbar>.field--narrow{grid-column:span 3}.run-config .toolbar>.toolbar__actions{flex-wrap:wrap;grid-column:span 6;align-items:center;gap:10px;padding-top:0;display:flex}.run-config .toolbar>.advanced-settings{grid-column:1/-1}.advanced-settings{background:#02061761;border:1px solid #1e293b;border-radius:18px;padding:12px 14px}.advanced-settings>summary{cursor:pointer;color:#f8fafc;font-weight:600}.advanced-settings__grid{grid-template-columns:repeat(12,minmax(0,1fr));gap:12px;margin-top:12px;display:grid}.advanced-settings__grid>.field{grid-column:span 4}.advanced-settings__grid>.field--wide{grid-column:span 6}.advanced-settings__grid>.field--narrow{grid-column:span 3}.summary--top{padding:0}.kpi-strip{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;display:grid}.kpi-card{background:linear-gradient(#0f172af5,#020617d1);border:1px solid #1e293b;border-radius:20px;gap:8px;min-height:88px;padding:14px 14px 12px;display:grid;box-shadow:inset 0 1px #ffffff08}.kpi-card__label{color:#94a3b8;text-transform:uppercase;letter-spacing:0;font-size:12px}.kpi-card strong{font-size:28px;line-height:1}.kpi-card em{color:#94a3b8;font-size:12px;font-style:normal}.kpi-card--accent{background:linear-gradient(135deg,#2563eb47,#0f172af5),linear-gradient(#0f172af5,#020617d1);border-color:#3b82f659}.kpi-card--danger{border-color:#ef444473;box-shadow:0 0 0 1px #ef44441f,0 0 24px #ef444414}.workspace-shell{grid-template-columns:repeat(12,minmax(0,1fr));align-items:start;gap:18px;display:grid}.runs-drawer{background:#0f172ac2;border:1px solid #1e293b;border-radius:20px;grid-column:span 3;gap:14px;min-width:0;padding:16px;display:grid;box-shadow:0 18px 50px #02061738}.runs-drawer__content{gap:12px;display:grid}.workspace-main{grid-column:span 9;gap:14px;min-width:0;display:grid}.workspace-main__header{gap:6px;display:grid}.workspace-main .workspace{gap:16px;display:grid}.workspace-main .workspace__primary{min-height:520px}.workspace-main .workspace__below{grid-template-columns:minmax(0,1fr) minmax(320px,380px);align-items:start;gap:16px;padding:0 0 30px;display:grid}.workspace-main .workspace__details{max-width:380px}.workspace-main .diff-toolbar{background:#0206177a;border:1px solid #94a3b81f;border-radius:16px;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;display:flex}.workspace-main .viewer-tabs{flex-wrap:wrap;gap:8px;display:flex}.workspace-main .viewer-tab{border-radius:12px;padding:10px 14px}.workspace-main .diff-frame{background:#02061780;border-radius:20px;min-height:520px;overflow:hidden}.workspace-main .diff-frame__page{min-height:520px}.workspace-main .issue-table-wrap{max-height:420px;overflow:auto}.issue-table{border-collapse:collapse;width:100%;min-width:920px}.issue-table th,.issue-table td{padding:12px 10px;font-size:14px}.issue-row--critical{background:#ef44441f;box-shadow:inset 0 0 0 1px #ef44442e,0 0 20px #ef444414}.issue-row--major{background:#f59e0b1a}.issue-row--selected{background:#6366f124;outline:1px solid #6366f159}.workspace__details--critical{box-shadow:0 0 0 1px #ef444438,0 0 24px #ef44441a}.muted,.pill,.field label,.topnav__select,.recent-run__meta,.recent-run__runtime,.hero__hint,.kpi-card em,.announcement-card__meta,.release-card p,.release-list,.release-history,.status,.section__head p,.summary-card span,.summary-card em{font-size:14px}.settings-panel{gap:18px;display:none}.settings-panel__head{justify-content:space-between;align-items:start;gap:18px;display:flex}.admin-section{display:grid}.app-shell[data-route=dashboard] .settings-panel,.app-shell[data-route=settings] .dashboard-grid{display:none}.app-shell[data-route=settings] .settings-panel{display:grid}.sidebar,.app-shell[data-route=dashboard] .layout,.app-shell[data-route=dashboard] .panel--list,.app-shell[data-route=dashboard] .app-shell__content{display:none}@media (width<=1200px){.page-shell{padding:16px}.hero.hero--dashboard,.workspace-shell,.kpi-strip,.run-config .toolbar,.advanced-settings__grid,.workspace-main .workspace__below{grid-template-columns:1fr}.runs-drawer,.workspace-main{grid-column:auto}.workspace-main .workspace__details{max-width:none}.topnav{grid-template-columns:1fr}.topnav__right{justify-content:flex-start}}@media (width<=760px){.hero.hero--dashboard,.run-config,.topnav,.runs-drawer,.workspace-main .workspace__primary,.workspace-main .workspace__details,.settings-panel .section,.kpi-card{border-radius:16px}.kpi-card strong{font-size:24px}.hero--dashboard h1{font-size:28px}.issue-table{min-width:780px}}.run-status{box-sizing:border-box;color:#bfdbfe;background:#2563eb1f;border:1px solid #3b82f642;border-radius:14px;align-items:center;width:100%;min-height:40px;padding:10px 12px;font-size:14px;display:inline-flex}.run-status--error{color:#fecaca;background:#ef444424;border-color:#ef444457;box-shadow:0 0 0 1px #ef444414}.run-error-panel{background:linear-gradient(#7f1d1d3d,#0f172adb);border:1px solid #ef444457;border-radius:16px;gap:8px;margin-top:12px;padding:14px 16px;display:grid;box-shadow:0 0 0 1px #ef44440f,0 18px 40px #0f172a52}.run-error-panel__head{justify-content:space-between;align-items:center;gap:12px;display:flex}.run-error-panel__head strong{color:#f8fafc;font-size:14px}.run-error-panel__message{color:#fecaca;font-size:15px;line-height:1.45}.run-error-panel__hint{color:#cbd5e1;font-size:14px;line-height:1.45}
+</style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+const MOCK = {"demo_seed": {"ok": true, "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vX3VzZXIiLCJ0ZW5hbnRJZCI6ImRlbW9fdGVuYW50Iiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzc3NjUwNzQwfQ.SXamOHx49Vq9yFjQ0BpMkfzAbELpW3DKToJkCm1xYPs", "tenantId": "demo_tenant", "userId": "demo_user", "projectId": "project-alpha", "figmaFileId": "file-123", "comparisonRunId": 1, "comparisonStatus": "warn"}, "session_context": {"ok": true, "context": {"tenantId": "demo_tenant", "userId": "demo_user", "projects": [{"id": "1", "externalId": "project-alpha", "name": "Marketing Website", "figmaFiles": [{"id": "1", "externalId": "file-123", "name": "Design System v2.4"}]}]}}, "usage": {"ok": true, "usage": {"tenantId": 1, "externalId": "demo_tenant", "planName": "pro", "planStatus": "active", "trialEndsAt": null, "snapshotCount": 47, "comparisonRunCount": 5, "apiKeyCount": 2, "webhookCount": 1, "activeWebhookCount": 1, "membershipCount": 3}, "limits": {"maxSnapshots": 500, "maxComparisonRuns": 500, "maxApiKeys": 10, "maxWebhooks": 10, "maxMembers": 25}, "withinLimits": true}, "billing": {"ok": true, "billing": {"tenantId": 1, "externalId": "demo_tenant", "planName": "pro", "planStatus": "active", "trialEndsAt": null, "billingProvider": "stripe", "billingCustomerId": "cus_demo123", "apiKeyCount": 2}}, "tuning": {"ok": true, "tuning": {"tenantId": 1, "feedbackCount": 12, "averageRating": 4.2, "positiveCount": 9, "neutralCount": 2, "negativeCount": 1, "tagCounts": [{"tag": "layout", "count": 5}, {"tag": "spacing", "count": 4}, {"tag": "typography", "count": 3}], "recommendedTolerancePx": 8, "rationale": "Based on 12 feedback items, tolerance of 8px balances accuracy with noise reduction."}}, "history": {"ok": true, "history": [{"id": "5", "tenantId": 1, "projectId": 1, "figmaFileExternalId": "file-123", "figmaFileName": "Design System v2.4", "status": "warn", "tolerancePx": 8, "createdAt": "2026-05-01T15:53:07.179Z"}, {"id": "4", "tenantId": 1, "projectId": 1, "figmaFileExternalId": "file-123", "figmaFileName": "Design System v2.4", "status": "pass", "tolerancePx": 8, "createdAt": "2026-04-30T11:22:10.000Z"}, {"id": "3", "tenantId": 1, "projectId": 1, "figmaFileExternalId": "file-123", "figmaFileName": "Design System v2.4", "status": "fail", "tolerancePx": 8, "createdAt": "2026-04-29T09:15:30.000Z"}, {"id": "2", "tenantId": 1, "projectId": 1, "figmaFileExternalId": "file-123", "figmaFileName": "Design System v2.4", "status": "pass", "tolerancePx": 8, "createdAt": "2026-04-28T14:30:00.000Z"}, {"id": "1", "tenantId": 1, "projectId": 1, "figmaFileExternalId": "file-123", "figmaFileName": "Design System v2.4", "status": "pass", "tolerancePx": 8, "createdAt": "2026-04-27T08:00:00.000Z"}]}, "comparison_run": {"ok": true, "run": {"id": "5", "tenantId": 1, "projectId": 1, "figmaFileExternalId": "file-123", "figmaFileName": "Design System v2.4", "status": "warn", "tolerancePx": 8, "createdAt": "2026-05-01T15:53:07.179Z", "designSnapshot": {"nodes": [{"id": "1:1", "name": "Hero Section", "type": "FRAME", "bounds": {"x": 0, "y": 0, "width": 1440, "height": 600}}]}, "pageSnapshot": {"roots": [{"tag": "div", "bounds": {"x": 0, "y": 0, "width": 1440, "height": 612}}]}, "issues": [{"code": "SIZE_MISMATCH", "severity": "minor", "path": "Hero Section/CTA Button", "message": "Width differs by 4px (expected 180px, got 184px)"}, {"code": "SPACING_MISMATCH", "severity": "minor", "path": "Hero Section/Headline", "message": "Top padding differs by 6px (expected 48px, got 54px)"}, {"code": "FONT_SIZE_MISMATCH", "severity": "major", "path": "Hero Section/Subheadline", "message": "Font size differs (expected 20px, got 18px)"}]}}, "report": {"ok": true, "report": {"runId": "5", "createdAt": "2026-05-01T15:53:07.179Z", "tolerancePx": 8, "tenantId": "demo_tenant", "projectId": "project-alpha", "figmaFileId": "file-123", "summary": {"status": "warn", "totalIssues": 3, "minorIssues": 2, "majorIssues": 1, "criticalIssues": 0, "tolerancePx": 8}, "issueGroups": [{"code": "SIZE_MISMATCH", "count": 1, "severity": "minor"}, {"code": "SPACING_MISMATCH", "count": 1, "severity": "minor"}, {"code": "FONT_SIZE_MISMATCH", "count": 1, "severity": "major"}], "issuePatterns": [{"code": "FONT_SIZE_MISMATCH", "severity": "major", "count": 1, "samplePaths": ["Hero Section/Subheadline"], "sampleMessage": "Font size differs (expected 20px, got 18px)"}, {"code": "SIZE_MISMATCH", "severity": "minor", "count": 1, "samplePaths": ["Hero Section/CTA Button"], "sampleMessage": "Width differs by 4px"}, {"code": "SPACING_MISMATCH", "severity": "minor", "count": 1, "samplePaths": ["Hero Section/Headline"], "sampleMessage": "Top padding differs by 6px"}], "issues": [{"code": "SIZE_MISMATCH", "severity": "minor", "path": "Hero Section/CTA Button", "message": "Width differs by 4px (expected 180px, got 184px)"}, {"code": "SPACING_MISMATCH", "severity": "minor", "path": "Hero Section/Headline", "message": "Top padding differs by 6px (expected 48px, got 54px)"}, {"code": "FONT_SIZE_MISMATCH", "severity": "major", "path": "Hero Section/Subheadline", "message": "Font size differs (expected 20px, got 18px)"}], "designSnapshot": {"nodes": []}, "pageSnapshot": {"roots": []}}}, "webhooks": {"ok": true, "webhooks": [{"id": 1, "tenantId": 1, "name": "Slack Alerts", "targetUrl": "https://hooks.slack.com/services/DEMO", "secret": "whsec_demo", "events": ["comparison.created", "comparison.failed"], "createdAt": "2026-04-28T14:30:00.000Z", "revokedAt": null}]}, "releases": {"ok": true, "releases": [{"version": "2.4.0", "releasedAt": "2026-05-01T15:53:07.179Z", "title": "Adaptive Tolerance Engine", "summary": "Smarter comparison engine that learns from your feedback.", "highlights": ["ML-based tolerance adjustment", "Feedback-driven tuning", "50% reduction in false positives"]}, {"version": "2.3.1", "releasedAt": "2026-04-29T09:15:30.000Z", "title": "Webhook Delivery Improvements", "summary": "More reliable webhook delivery with retry logic.", "highlights": ["Exponential backoff retries", "Dead-letter queue", "Delivery status dashboard"]}]}, "latest_release": {"ok": true, "release": {"version": "2.4.0", "releasedAt": "2026-05-01T15:53:07.179Z", "title": "Adaptive Tolerance Engine", "summary": "Smarter comparison engine that learns from your feedback.", "highlights": ["ML-based tolerance adjustment", "Feedback-driven tuning", "50% reduction in false positives"]}, "maintenanceMessage": null}, "announcements": {"ok": true, "unreadCount": 1, "announcements": [{"id": 1, "kind": "release", "version": "2.4.0", "title": "Adaptive Tolerance Engine", "summary": "Smarter comparison with feedback-driven tuning.", "highlights": ["ML-based tolerance adjustment", "Feedback-driven tuning"], "message": "Version 2.4.0 is now live. Check the releases tab for details.", "releasedAt": "2026-05-01T15:53:07.179Z", "acknowledged": false, "acknowledgedAt": null}]}, "qa_check": {"ok": true, "comparison": {"tenantId": "demo_tenant", "projectId": "project-alpha", "status": "warn", "issues": [{"code": "SPACING_MISMATCH", "severity": "minor", "path": "Header/Nav", "message": "Padding differs by 6px"}]}, "storedComparison": {"id": 6, "status": "warn"}, "storedSnapshot": {}, "designSnapshot": {}, "pageSnapshot": {}, "figmaFileKey": "file-123"}};
+const DELAY = (ms) => new Promise(r => setTimeout(r, ms));
+const _origFetch = window.fetch.bind(window);
+window.fetch = async function(input, init) {
+  const url = typeof input === 'string' ? input : (input instanceof Request ? input.url : String(input));
+  const method = (init?.method || (input instanceof Request ? input.method : 'GET') || 'GET').toUpperCase();
+  if (!url.includes('/v1/')) return _origFetch(input, init);
+  await DELAY(120 + Math.random() * 80);
+  const path = url.replace(/^https?:\/\/[^/]+/, '');
+  let body = null;
+
+  if (method === 'POST' && path.includes('/v1/dev/demo-seed')) {
+    body = MOCK.demo_seed;
+  } else if (method === 'GET' && path.includes('/v1/session-context')) {
+    body = MOCK.session_context;
+  } else if (method === 'GET' && /\/v1\/tenants\/[^/]+\/usage/.test(path)) {
+    body = MOCK.usage;
+  } else if (method === 'GET' && /\/v1\/billing\/[^/]+$/.test(path)) {
+    body = MOCK.billing;
+  } else if (method === 'POST' && /\/v1\/billing\/[^/]+\/(checkout|portal)/.test(path)) {
+    body = { ok: true, billing: MOCK.billing.billing, action: { provider: 'stripe', url: null, message: 'Billing portal would open here in production.' } };
+  } else if (method === 'GET' && /\/v1\/comparisons\/[^/]+\/report/.test(path)) {
+    body = MOCK.report;
+  } else if (method === 'GET' && /\/v1\/comparisons\/[^/]+\/feedback/.test(path)) {
+    body = { ok: true, feedback: [] };
+  } else if (method === 'POST' && /\/v1\/comparisons\/[^/]+\/feedback/.test(path)) {
+    body = { ok: true, feedback: { id: 1, rating: 4, sentiment: 'positive', notes: '', tags: [], createdAt: new Date().toISOString() } };
+  } else if (method === 'GET' && /\/v1\/comparisons\/[^/]+\/issues/.test(path)) {
+    body = { ok: true, statuses: [] };
+  } else if (method === 'PUT' && /\/v1\/comparisons\/[^/]+\/issues/.test(path)) {
+    body = { ok: true, status: { id: 1, status: 'resolved' } };
+  } else if (method === 'GET' && /\/v1\/comparisons\/\d+$/.test(path)) {
+    body = MOCK.comparison_run;
+  } else if (method === 'GET' && path.includes('/v1/comparisons')) {
+    body = MOCK.history;
+  } else if (method === 'GET' && path.includes('/v1/') && /\/tuning/.test(path)) {
+    body = MOCK.tuning;
+  } else if (method === 'GET' && path.includes('/v1/releases/latest')) {
+    body = MOCK.latest_release;
+  } else if (method === 'GET' && path.includes('/v1/releases')) {
+    body = MOCK.releases;
+  } else if (method === 'POST' && /\/v1\/announcements\/\d+\/acknowledge/.test(path)) {
+    body = { ok: true, unreadCount: 0, announcement: { ...MOCK.announcements.announcements[0], acknowledged: true, acknowledgedAt: new Date().toISOString() } };
+  } else if (method === 'GET' && path.includes('/v1/announcements')) {
+    body = MOCK.announcements;
+  } else if (method === 'GET' && path.includes('/v1/integrations/webhooks') && /\/\d+\/deliveries/.test(path)) {
+    body = { ok: true, deliveries: [] };
+  } else if (method === 'GET' && path.includes('/v1/integrations/webhooks')) {
+    body = MOCK.webhooks;
+  } else if (method === 'POST' && /\/v1\/integrations\/webhooks\/\d+\/redeliver/.test(path)) {
+    body = { ok: true };
+  } else if (method === 'POST' && /\/v1\/integrations\/webhooks\/\d+\/revoke/.test(path)) {
+    body = { ok: true };
+  } else if (method === 'POST' && path.includes('/v1/integrations/webhooks')) {
+    body = { ok: true, webhook: MOCK.webhooks.webhooks[0] };
+  } else if (method === 'POST' && path.includes('/v1/qa/check')) {
+    body = MOCK.qa_check;
+  } else if (method === 'GET' && path.includes('/v1/integrations/api-keys')) {
+    body = { ok: true, apiKeys: [] };
+  } else if (method === 'POST' && path.includes('/v1/integrations/api-keys')) {
+    body = { ok: true, apiKey: { id: 1, name: 'Demo Key', token: 'd2p_sk_demo_' + Math.random().toString(36).slice(2), scopes: ['read','write'], createdAt: new Date().toISOString(), revokedAt: null } };
+  } else if (method === 'POST' && /\/v1\/integrations\/api-keys\/\d+\/revoke/.test(path)) {
+    body = { ok: true };
+  } else if (method === 'GET' && path.includes('/v1/release-management')) {
+    body = { ok: true, releases: MOCK.releases.releases };
+  } else if (method === 'POST' && path.includes('/v1/release-management')) {
+    body = { ok: true, release: MOCK.releases.releases[0] };
+  } else if (method === 'PUT' && path.includes('/v1/maintenance')) {
+    body = { ok: true };
+  } else {
+    console.warn('[MockAPI] Unhandled:', method, path);
+    body = { ok: false, error: 'Not found', path };
+    return new Response(JSON.stringify(body), { status: 404, headers: { 'Content-Type': 'application/json' } });
+  }
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+  });
+};
+</script>
+  <script type="module">(function(){let e=document.createElement(`link`).relList;if(e&&e.supports&&e.supports(`modulepreload`))return;for(let e of document.querySelectorAll(`link[rel="modulepreload"]`))n(e);new MutationObserver(e=>{for(let t of e)if(t.type===`childList`)for(let e of t.addedNodes)e.tagName===`LINK`&&e.rel===`modulepreload`&&n(e)}).observe(document,{childList:!0,subtree:!0});function t(e){let t={};return e.integrity&&(t.integrity=e.integrity),e.referrerPolicy&&(t.referrerPolicy=e.referrerPolicy),e.crossOrigin===`use-credentials`?t.credentials=`include`:e.crossOrigin===`anonymous`?t.credentials=`omit`:t.credentials=`same-origin`,t}function n(e){if(e.ep)return;e.ep=!0;let n=t(e);fetch(e.href,n)}})();function e(e){return e.replaceAll(`\\`,`\\\\`).replaceAll(`(`,`\\(`).replaceAll(`)`,`\\)`).replace(/[^\x20-\x7E]/g,`?`)}function t(t){let n=[`Comparison report`,`Tenant: ${t.tenantId}`,`Project: ${t.projectId}`,`Figma file: ${t.figmaFileId??`n/a`}`,`Status: ${t.summary.status}`,`Tolerance: ${t.summary.tolerancePx}px`,`Issues: ${t.summary.totalIssues} total | minor ${t.summary.minorIssues} | major ${t.summary.majorIssues} | critical ${t.summary.criticalIssues}`,``,`Issue groups`];for(let e of t.issueGroups)n.push(`- ${e.code} (${e.severity}): ${e.count}`);n.push(``,`Issues`);for(let e of t.issues)n.push(`- [${e.severity}] ${e.code} @ ${e.path}: ${e.message}`);n.push(``,`Pattern drill-down`);for(let e of t.issuePatterns)n.push(`- ${e.code} (${e.severity}) x${e.count} @ ${e.samplePaths.join(`, `)}`),n.push(`  ${e.sampleMessage}`);return n.map(e)}function n(t){return`(${e(t)})`}function r(e){let r=t(e),i=[];for(let e=0;e<r.length;e+=49)i.push(r.slice(e,e+49));i.length===0&&i.push([`Comparison report`]);let a=i.map(e=>{let t=[];t.push(`BT`),t.push(`/F1 12 Tf`),t.push(`48 744 Td`),t.push(`14 TL`);for(let r=0;r<e.length;r+=1){let i=e[r];r===0?t.push(`${n(i)} Tj`):t.push(`T* ${n(i)} Tj`)}return t.push(`ET`),t.join(`
+`)}),o=new TextEncoder,s=4+i.length,c=new Map;c.set(1,`1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+`),c.set(2,`2 0 obj\n<< /Type /Pages /Kids [${i.map((e,t)=>`${s+t} 0 R`).join(` `)}] /Count ${i.length} >>\nendobj\n`),c.set(3,`3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+`);for(let e=0;e<i.length;e+=1){let t=4+e,n=s+e,r=a[e];c.set(t,`${t} 0 obj\n<< /Length ${o.encode(r).length} >>\nstream\n${r}\nendstream\nendobj\n`),c.set(n,`${n} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents ${t} 0 R >>\nendobj\n`)}let l=s+i.length-1,u=o.encode(`%PDF-1.4
+`),d=[u],f=Array(l+1).fill(0),p=u.length;for(let e=1;e<=l;e+=1){let t=c.get(e);if(!t)throw Error(`Missing PDF object ${e}`);f[e]=p;let n=o.encode(t);d.push(n),p+=n.length}let m=p,h=[`xref`,`0 ${l+1}`,`0000000000 65535 f `];for(let e=1;e<=l;e+=1)h.push(`${f[e].toString().padStart(10,`0`)} 00000 n `);let g=[...h,`trailer`,`<< /Size ${l+1} /Root 1 0 R >>`,`startxref`,String(m),`%%EOF`].join(`
+`);d.push(o.encode(g));let _=d.reduce((e,t)=>e+t.length,0),v=new Uint8Array(_),y=0;for(let e of d)v.set(e,y),y+=e.length;return v}var i=document.querySelector(`#app`);if(!i)throw Error(`App root not found`);function a(e){let t=document.getElementById(e);if(!t)throw Error(`Missing required element: ${e}`);return t}function o(){return location.hash===`#settings`?`settings`:`dashboard`}var s={apiBaseUrl:localStorage.getItem(`d2p-api-base-url`)??`http://127.0.0.1:3001`,jwt:localStorage.getItem(`auth_token`)??localStorage.getItem(`d2p-jwt`)??``,appUrl:localStorage.getItem(`d2p-live-page-url`)??localStorage.getItem(`d2p-app-url`)??`http://localhost:3000`,figmaDesignUrl:localStorage.getItem(`d2p-figma-design-url`)??``,projectId:localStorage.getItem(`d2p-project-id`)??``,figmaFileId:localStorage.getItem(`d2p-figma-file-id`)??``,limit:Number(localStorage.getItem(`d2p-limit`)??`20`),statusFilter:localStorage.getItem(`d2p-status-filter`)??`all`,devicePreset:localStorage.getItem(`d2p-device-preset`)??`desktop`,viewportWidth:Number(localStorage.getItem(`d2p-viewport-width`)??`1440`),viewportHeight:Number(localStorage.getItem(`d2p-viewport-height`)??`1024`),deviceScaleFactor:Number(localStorage.getItem(`d2p-device-scale-factor`)??`1`),userAgent:localStorage.getItem(`d2p-user-agent`)??`Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36`,session:null,usage:null,billing:null,tuning:null,releases:[],latestRelease:null,announcements:[],unreadAnnouncementCount:0,releaseDraft:{version:localStorage.getItem(`d2p-release-version`)??``,title:localStorage.getItem(`d2p-release-title`)??``,summary:localStorage.getItem(`d2p-release-summary`)??``,highlights:localStorage.getItem(`d2p-release-highlights`)??``},maintenanceDraft:{message:localStorage.getItem(`d2p-maintenance-message`)??``},history:[],selectedRun:null,selectedIssueKey:null,hoveredIssueKey:null,selectedReport:null,selectedReportCodeFilter:null,activeSnapshot:null,comparisonFeedback:[],issueStatuses:[],feedbackDraft:{rating:4,sentiment:`positive`,notes:``,tags:``},webhooks:[],selectedWebhook:null,webhookDeliveries:[],billingActionMessage:null,webhookDraft:{name:localStorage.getItem(`d2p-webhook-name`)??``,targetUrl:localStorage.getItem(`d2p-webhook-target-url`)??``,comparisonCreated:localStorage.getItem(`d2p-webhook-comparison-created`)!==`false`,comparisonFailed:localStorage.getItem(`d2p-webhook-comparison-failed`)===`true`},status:`Ready`};i.innerHTML=`
+  <div class="app-shell" data-route="${o()}">
+    <div class="page-shell">
+      <header class="topnav">
+        <div class="topnav__left">
+          <div class="topnav__brand">
+            <div class="sidebar__mark">DQ</div>
+            <strong>Design QA Cockpit</strong>
+          </div>
+          <label class="topnav__select">
+            <span>Project</span>
+            <select id="project"></select>
+          </label>
+        </div>
+        <div class="topnav__right">
+          <span class="env-badge">Production</span>
+          <button class="icon-button" type="button" aria-label="Notifications">
+            <span class="icon-bell"></span>
+            <span id="announcement-count" class="pill pill--warn">0 unread</span>
+          </button>
+          <button id="open-settings" class="icon-button icon-button--profile" type="button" aria-label="Open settings">
+            AT
+          </button>
+        </div>
+      </header>
+
+      <main class="dashboard-grid">
+        <section class="hero hero--dashboard">
+          <div class="hero__copy">
+            <div class="eyebrow">Design QA cockpit</div>
+            <h1>Compare Figma designs with production pages</h1>
+            <p>Detect layout, spacing, typography, and missing elements before release.</p>
+            <div class="hero__actions">
+              <button id="run-qa-check-setup" class="button">Run QA Check</button>
+              <button id="load-session" class="button button--ghost">Load Session</button>
+            </div>
+          </div>
+          <div class="hero__visual">
+            <div class="hero__visual-head">
+              <span class="pill pill--pass" id="latest-run-status">Latest run</span>
+              <span class="muted">Completed</span>
+            </div>
+            <div class="latest-run-card">
+              <div class="latest-run-card__ring">
+                <svg viewBox="0 0 120 120" class="score-ring" aria-label="Overall score 87 percent">
+                  <circle cx="60" cy="60" r="46"></circle>
+                  <circle cx="60" cy="60" r="46" class="score-ring__value"></circle>
+                </svg>
+                <div class="score-ring__label">
+                  <strong id="latest-score-value">87%</strong>
+                  <span>Overall score</span>
+                </div>
+              </div>
+              <dl class="latest-run-card__meta">
+                <div><dt>Passed</dt><dd id="latest-passed">124</dd></div>
+                <div><dt>Warnings</dt><dd id="latest-warnings">18</dd></div>
+                <div><dt>Failed</dt><dd id="latest-failed">7</dd></div>
+                <div><dt>Runtime</dt><dd id="latest-runtime">2m 42s</dd></div>
+                <div><dt>Threshold</dt><dd id="latest-threshold">90%</dd></div>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <section class="run-config">
+          <div class="section__head section__head--compact">
+            <div>
+              <h2>Run QA Check</h2>
+              <p class="muted">Paste the Figma design URL and live page URL, then run the comparison.</p>
+            </div>
+          </div>
+          <div id="run-status" class="run-status" role="status" aria-live="polite">Ready</div>
+          <div id="run-error-panel" class="run-error-panel" hidden>
+            <div class="run-error-panel__head">
+              <strong>Figma connection error</strong>
+              <span class="pill pill--danger" id="run-error-code">Attention needed</span>
+            </div>
+            <div id="run-error-message" class="run-error-panel__message"></div>
+            <div id="run-error-hint" class="run-error-panel__hint"></div>
+          </div>
+          <div class="toolbar">
+            <div class="field field--wide">
+              <label>Figma Design URL</label>
+              <input
+                id="figma-design-url"
+                type="url"
+                value="${s.figmaDesignUrl}"
+                placeholder="https://www.figma.com/design/ABC123/Marketing-Website"
+              />
+            </div>
+            <div class="field field--wide">
+              <label>Live Page URL</label>
+              <input id="live-page-url" type="url" value="${s.appUrl}" placeholder="https://example.com" />
+            </div>
+            <div class="field field--narrow">
+              <label>Viewport</label>
+              <select id="device-preset">
+                <option value="desktop">Desktop</option>
+                <option value="tablet">Tablet</option>
+                <option value="mobile">Mobile</option>
+              </select>
+            </div>
+            <div class="field field--narrow">
+              <label>Tolerance</label>
+              <input id="limit" type="number" min="1" max="100" value="${s.limit}" />
+            </div>
+            <div class="toolbar__actions">
+              <button id="run-qa-check" class="button">Run QA Check</button>
+              <button id="download-report" class="button button--ghost">Download Report</button>
+            </div>
+            <details class="advanced-settings">
+              <summary>Developer Options</summary>
+              <div class="advanced-settings__grid">
+                <div class="field field--wide">
+                  <label>API URL</label>
+                  <input id="api-base-url" type="url" value="${s.apiBaseUrl}" />
+                </div>
+                <div class="field field--wide">
+                  <label>JWT</label>
+                  <input id="jwt" type="password" value="${s.jwt}" placeholder="Bearer token" />
+                </div>
+                <div class="field">
+                  <label>Figma file</label>
+                  <select id="figma-file"></select>
+                </div>
+                <div class="field field--narrow">
+                  <label>Status</label>
+                  <select id="status-filter">
+                    <option value="all">All</option>
+                    <option value="pass">Pass</option>
+                    <option value="warn">Warn</option>
+                    <option value="fail">Fail</option>
+                  </select>
+                </div>
+                <div class="field field--narrow">
+                  <label>Scale</label>
+                  <input id="device-scale-factor" type="number" min="1" max="4" step="0.25" value="${s.deviceScaleFactor}" />
+                </div>
+                <div class="field field--narrow">
+                  <label>Width</label>
+                  <input id="viewport-width" type="number" min="320" max="4000" value="${s.viewportWidth}" />
+                </div>
+                <div class="field field--narrow">
+                  <label>Height</label>
+                  <input id="viewport-height" type="number" min="240" max="4000" value="${s.viewportHeight}" />
+                </div>
+                <div class="field field--wide">
+                  <label>User agent</label>
+                  <input id="user-agent" type="text" value="${s.userAgent}" />
+                </div>
+                <div class="field field--wide">
+                  <label>Actions</label>
+                  <div class="toolbar__actions toolbar__actions--advanced">
+                    <button id="export-json" class="button button--ghost" type="button">Developer Export</button>
+                    <button id="load-history" class="button button--ghost" type="button">Load History</button>
+                    <button id="refresh" class="button button--ghost" type="button">Refresh Detail</button>
+                    <button id="download-report-csv" class="button button--ghost" type="button">Download CSV</button>
+                    <button id="download-report-pdf" class="button button--ghost" type="button">Download PDF</button>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section class="summary summary--top">
+          <div id="summary"></div>
+        </section>
+
+        <section class="workspace-shell">
+          <aside class="runs-drawer">
+            <div class="section__head section__head--compact runs-drawer__head">
+              <div>
+                <h3>Recent Runs</h3>
+                <p id="session-label" class="muted">Latest comparisons and score trend.</p>
+              </div>
+              <div id="status" class="status">Ready</div>
+            </div>
+            <div id="history-list" class="runs-drawer__content"></div>
+          </aside>
+          <section class="workspace-main">
+            <div class="workspace-main__header">
+              <h2>Run details</h2>
+              <p id="detail-label" class="muted">Select a run to inspect it.</p>
+            </div>
+            <div id="detail" class="detail"></div>
+          </section>
+        </section>
+      </main>
+
+      <section class="settings-panel">
+        <div class="settings-panel__head">
+          <div>
+            <div class="eyebrow">Developer options</div>
+            <h2>Settings</h2>
+            <p class="muted">Billing, tuning, announcements, release notes, webhooks, and maintenance live here.</p>
+          </div>
+          <div class="status">Hidden from dashboard</div>
+        </div>
+
+        <section class="section admin-section">
+          <div class="section__head">
+            <div>
+              <h2>Billing</h2>
+              <p class="muted">Plan details and subscription actions for the current tenant.</p>
+            </div>
+            <button id="refresh-billing" class="button button--ghost">Refresh</button>
+          </div>
+          <div id="billing" class="billing"></div>
+          <div class="billing-actions">
+            <button id="start-checkout" class="button">Start checkout</button>
+            <button id="open-portal" class="button button--ghost">Open billing portal</button>
+          </div>
+        </section>
+
+        <section class="section admin-section">
+          <div class="section__head">
+            <div>
+              <h2>Tuning</h2>
+              <p class="muted">Feedback-derived default tolerance for new comparisons.</p>
+            </div>
+            <button id="refresh-tuning" class="button button--ghost">Refresh</button>
+          </div>
+          <div id="tuning" class="tuning"></div>
+        </section>
+
+        <section class="section admin-section">
+          <div class="section__head">
+            <div>
+              <h2>Announcements</h2>
+              <p class="muted">Unread release and maintenance updates for the current session.</p>
+            </div>
+            <div class="section__head-actions">
+              <span class="pill pill--warn" data-legacy-announcement-count>0 unread</span>
+              <button id="refresh-announcements" class="button button--ghost">Refresh</button>
+            </div>
+          </div>
+          <div id="announcements" class="announcements"></div>
+        </section>
+
+        <section class="section admin-section">
+          <div class="section__head">
+            <div>
+              <h2>Release notes</h2>
+              <p class="muted">Current release and recent maintenance updates.</p>
+            </div>
+            <button id="refresh-releases" class="button button--ghost">Refresh</button>
+          </div>
+          <div id="releases" class="releases"></div>
+          <div class="release-management">
+            <form id="release-form" class="management-form">
+              <div class="field field--narrow">
+                <label>Version</label>
+                <input id="release-version" type="text" value="${s.releaseDraft.version}" placeholder="0.1.1" />
+              </div>
+              <div class="field field--wide">
+                <label>Title</label>
+                <input id="release-title" type="text" value="${s.releaseDraft.title}" placeholder="Maintenance update" />
+              </div>
+              <div class="field field--wide">
+                <label>Summary</label>
+                <textarea id="release-summary" rows="3" placeholder="What changed?">${s.releaseDraft.summary}</textarea>
+              </div>
+              <div class="field field--wide">
+                <label>Highlights</label>
+                <textarea id="release-highlights" rows="3" placeholder="One highlight per line">${s.releaseDraft.highlights}</textarea>
+              </div>
+              <button class="button" type="submit">Publish release note</button>
+            </form>
+            <form id="maintenance-form" class="management-form">
+              <div class="field field--wide">
+                <label>Maintenance message</label>
+                <textarea id="maintenance-message" rows="4" placeholder="Planned maintenance window">${s.maintenanceDraft.message}</textarea>
+              </div>
+              <button class="button button--ghost" type="submit">Set maintenance message</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="section admin-section">
+          <div class="section__head">
+            <div>
+              <h2>Webhooks</h2>
+              <p class="muted">Manage comparison delivery subscriptions for the current tenant.</p>
+            </div>
+            <button id="refresh-webhooks" class="button button--ghost">Refresh</button>
+          </div>
+          <div class="webhook-form">
+            <div class="field">
+              <label>Name</label>
+              <input id="webhook-name" type="text" value="${s.webhookDraft.name}" placeholder="CI notifications" />
+            </div>
+            <div class="field field--wide">
+              <label>Target URL</label>
+              <input id="webhook-target-url" type="url" value="${s.webhookDraft.targetUrl}" placeholder="http://localhost:4000/webhook" />
+            </div>
+            <label class="check">
+              <input id="webhook-event-created" type="checkbox" ${s.webhookDraft.comparisonCreated?`checked`:``} />
+              <span>comparison.created</span>
+            </label>
+            <label class="check">
+              <input id="webhook-event-failed" type="checkbox" ${s.webhookDraft.comparisonFailed?`checked`:``} />
+              <span>comparison.failed</span>
+            </label>
+            <button id="create-webhook" class="button">Create webhook</button>
+          </div>
+          <div id="webhook-list" class="webhook-list"></div>
+          <div id="webhook-deliveries" class="webhook-deliveries"></div>
+        </section>
+      </section>
+    </div>
+  </div>
+`;var c=a(`api-base-url`),l=a(`live-page-url`),u=a(`figma-design-url`),d=a(`jwt`),f=a(`project`),p=a(`figma-file`),m=a(`limit`),h=a(`status-filter`),g=a(`device-preset`),_=a(`viewport-width`),v=a(`viewport-height`),y=a(`device-scale-factor`),b=a(`user-agent`),ee=a(`history-list`),te=a(`summary`),ne=a(`billing`),re=a(`tuning`),x=a(`announcements`),ie=a(`announcement-count`),ae=a(`releases`),S=a(`detail`),C=a(`webhook-list`),w=a(`webhook-deliveries`),oe=a(`detail-label`),se=a(`session-label`),ce=a(`status`),le=a(`run-status`),ue=a(`run-error-panel`),de=a(`run-error-code`),fe=a(`run-error-message`),pe=a(`run-error-hint`),me=a(`run-qa-check`),he=a(`load-history`),ge=a(`refresh`),_e=a(`export-json`),ve=a(`download-report`),ye=a(`download-report-csv`),be=a(`download-report-pdf`),xe=a(`refresh-webhooks`),Se=a(`refresh-billing`),Ce=a(`refresh-tuning`),we=a(`refresh-announcements`),Te=a(`refresh-releases`),Ee=a(`start-checkout`),De=a(`release-form`),Oe=a(`release-version`),ke=a(`release-title`),Ae=a(`release-summary`),je=a(`release-highlights`),Me=a(`maintenance-form`),Ne=a(`maintenance-message`),Pe=a(`open-portal`),Fe=a(`create-webhook`),T=a(`webhook-name`),E=a(`webhook-target-url`),D=a(`webhook-event-created`),O=a(`webhook-event-failed`),Ie=a(`open-settings`),Le=a(`run-qa-check-setup`);h.value=s.statusFilter,g.value=s.devicePreset,q(c,`d2p-api-base-url`),q(l,`d2p-live-page-url`),q(u,`d2p-figma-design-url`),q(d,`auth_token`),q(m,`d2p-limit`),q(_,`d2p-viewport-width`),q(v,`d2p-viewport-height`),q(y,`d2p-device-scale-factor`),q(b,`d2p-user-agent`),q(T,`d2p-webhook-name`),q(E,`d2p-webhook-target-url`),f.addEventListener(`change`,()=>{localStorage.setItem(`d2p-project-id`,f.value),s.projectId=f.value,ut(),W()}),document.querySelectorAll(`[data-nav]`).forEach(e=>{e.addEventListener(`click`,()=>{e.dataset.nav===`settings`?location.hash=`#settings`:location.hash=``})}),Ie.addEventListener(`click`,()=>{location.hash=`#settings`}),p.addEventListener(`change`,()=>{s.figmaFileId=p.value,W()}),h.addEventListener(`change`,()=>{s.statusFilter=h.value,localStorage.setItem(`d2p-status-filter`,s.statusFilter),B(),L()}),me.addEventListener(`click`,async()=>{await k()}),Le.addEventListener(`click`,async()=>{await k()}),he.addEventListener(`click`,async()=>{await A()}),ge.addEventListener(`click`,async()=>{await A()}),g.addEventListener(`change`,()=>{s.devicePreset=g.value,ht(s.devicePreset),G()}),_.addEventListener(`change`,()=>{s.viewportWidth=Number(_.value)||s.viewportWidth,G()}),v.addEventListener(`change`,()=>{s.viewportHeight=Number(v.value)||s.viewportHeight,G()}),y.addEventListener(`change`,()=>{s.deviceScaleFactor=Number(y.value)||s.deviceScaleFactor,G()}),b.addEventListener(`change`,()=>{s.userAgent=b.value.trim()||s.userAgent,G()}),_e.addEventListener(`click`,()=>{let e=JSON.stringify(U(),null,2),t=new Blob([e],{type:`application/json`}),n=URL.createObjectURL(t),r=document.createElement(`a`);r.href=n,r.download=`comparison-history-${Date.now()}.json`,r.click(),URL.revokeObjectURL(n),Y(`Exported JSON`)}),ve.addEventListener(`click`,async()=>{if(!s.selectedRun){Y(`Select a run first`);return}await K(s.selectedRun.id,`json`)}),ye.addEventListener(`click`,async()=>{if(!s.selectedRun){Y(`Select a run first`);return}await K(s.selectedRun.id,`csv`)}),be.addEventListener(`click`,async()=>{if(!s.selectedRun){Y(`Select a run first`);return}await K(s.selectedRun.id,`pdf`)}),xe.addEventListener(`click`,async()=>{await M()}),Se.addEventListener(`click`,async()=>{await He()}),Ce.addEventListener(`click`,async()=>{await Ue()}),we.addEventListener(`click`,async()=>{await We()}),Te.addEventListener(`click`,async()=>{await j()}),De.addEventListener(`submit`,async e=>{e.preventDefault(),await Ke()}),Me.addEventListener(`submit`,async e=>{e.preventDefault(),await qe()}),Ee.addEventListener(`click`,async()=>{await Je()}),Pe.addEventListener(`click`,async()=>{await Ye()}),Fe.addEventListener(`click`,async()=>{await Xe()}),x.addEventListener(`click`,async e=>{let t=e.target;if(!(t instanceof HTMLElement))return;let n=t.closest(`[data-ack-announcement]`);if(!n)return;let r=Number(n.dataset.ackAnnouncement);!Number.isInteger(r)||r<=0||await Ge(r)}),D.addEventListener(`change`,()=>{s.webhookDraft.comparisonCreated=D.checked,localStorage.setItem(`d2p-webhook-comparison-created`,String(s.webhookDraft.comparisonCreated))}),O.addEventListener(`change`,()=>{s.webhookDraft.comparisonFailed=O.checked,localStorage.setItem(`d2p-webhook-comparison-failed`,String(s.webhookDraft.comparisonFailed))}),f.addEventListener(`change`,async()=>{f.value&&await A()});function Re(){let e=o();i.dataset.route=e,document.querySelectorAll(`[data-nav]`).forEach(t=>{let n=t.dataset.nav;t.classList.toggle(`sidebar__item--active`,n===e||e===`dashboard`&&n===`dashboard`)})}window.addEventListener(`hashchange`,Re),Re(),L(),R(),$e(),z(),et(),P(),B(),H(),j(),d.value.trim()?ze():Be();async function ze(){Y(`Loading session...`);try{let e=await J(`/v1/session-context`);s.session=e.context,se.textContent=`Tenant ${e.context.tenantId} - ${e.context.projects.length} project(s)`,f.innerHTML=e.context.projects.map(e=>`<option value="${e.externalId}">${St(e)}</option>`).join(``)||`<option value="">No projects available</option>`,f.value=s.projectId&&Pt(s.projectId)?s.projectId:f.value,s.projectId=f.value,localStorage.setItem(`d2p-project-id`,s.projectId),ut();let t=[Ve(e.context.tenantId),He(),Ue(),We(),j(),M(),A()],n=(await Promise.allSettled(t)).find(e=>e.status===`rejected`);Y(n?$(n.reason):`Session loaded`)}catch(e){Y($(e)),H()}}async function Be(){Y(`Loading demo data...`);try{c.value=`http://127.0.0.1:3001`,s.apiBaseUrl=c.value,localStorage.setItem(`d2p-api-base-url`,s.apiBaseUrl);let e=await fetch(`${c.value.replace(/\/$/,``)}/v1/dev/demo-seed`,{method:`POST`,headers:{"content-type":`application/json`},body:JSON.stringify({})});if(!e.ok){let t=await e.json().catch(()=>null);throw Error(t?.message??`Request failed: ${e.status}`)}let t=await e.json();d.value=t.token,localStorage.setItem(`auth_token`,t.token),localStorage.setItem(`d2p-project-id`,t.projectId),localStorage.setItem(`d2p-figma-file-id`,t.figmaFileId),u.value=`https://www.figma.com/design/ABC123/Marketing-Website`,l.value=`http://localhost:3000`,localStorage.setItem(`d2p-figma-design-url`,u.value),localStorage.setItem(`d2p-live-page-url`,l.value),s.figmaDesignUrl=u.value,s.appUrl=l.value,s.projectId=t.projectId,s.figmaFileId=t.figmaFileId,await ze(),Y(`Demo loaded: run #${t.comparisonRunId} (${t.comparisonStatus})`)}catch(e){Y($(e))}}async function k(){if(!d.value.trim()||!s.session){Y(`Load session first`);return}let e=u.value.trim(),t=l.value.trim();if(!e){Y(`Figma Design URL is required`);return}if(!t){Y(`Live Page URL is required`);return}try{ct(e)}catch(e){Y(e instanceof Error?e.message:`Invalid Figma URL. Please paste a valid design link.`);return}if(lt(t)&&![`localhost`,`127.0.0.1`].includes(location.hostname)){Y(`Local URLs may not work in production. Use a staging or public URL.`);return}let n=s.session.tenantId,r=f.value||s.projectId;localStorage.setItem(`d2p-figma-design-url`,e),localStorage.setItem(`d2p-live-page-url`,t),Y(`Running QA check...`);try{let i=await J(`/v1/qa/check`,{method:`POST`,body:JSON.stringify({tenantId:n,projectId:r,figmaUrl:e,pageUrl:t,viewport:s.devicePreset,tolerancePx:Number(m.value)||void 0})});await A(),await I(i.storedComparison.id),Y(`QA check run #${i.storedComparison.id} (${i.storedComparison.status})`)}catch(e){Y($(e))}}async function A(){if(!d.value.trim()){Y(`JWT is required`);return}Y(`Loading history...`);try{let e=new URLSearchParams;f.value&&e.set(`projectId`,f.value),p.value&&e.set(`figmaFileId`,p.value),e.set(`limit`,String(Number(m.value)||20));let t=await J(`/v1/comparisons?${e.toString()}`);s.history=t.history,L(),B(),Y(`Loaded ${t.history.length} run(s)`),U().length>0?await I(U()[0].id):H()}catch(e){Y($(e)),H()}}async function Ve(e){d.value.trim()&&(s.usage=await J(`/v1/tenants/${encodeURIComponent(e)}/usage`),L())}async function He(){!d.value.trim()||!s.session||(s.billing=await J(`/v1/billing/${encodeURIComponent(s.session.tenantId)}`),R())}async function Ue(){!d.value.trim()||!s.session||(s.tuning=await J(`/v1/tenants/${encodeURIComponent(s.session.tenantId)}/tuning`),$e())}async function We(){if(!d.value.trim()||!s.session)return;let e=await J(`/v1/announcements`);s.announcements=e.announcements,s.unreadAnnouncementCount=e.unreadCount,z()}async function j(){s.releases=(await J(`/v1/releases`)).releases,s.latestRelease=await J(`/v1/releases/latest`),et()}async function Ge(e){if(!d.value.trim()||!s.session){Y(`Load session first`);return}Y(`Acknowledging announcement...`);try{let t=await J(`/v1/announcements/${e}/ack`,{method:`POST`});s.unreadAnnouncementCount=t.unreadCount,s.announcements=s.announcements.map(n=>n.id===e?t.announcement:n),z(),Y(`Announcement acknowledged`)}catch(e){Y($(e))}}async function Ke(){if(!d.value.trim()||!s.session){Y(`Load session first`);return}let e=je.value.split(`
+`).map(e=>e.trim()).filter(Boolean);localStorage.setItem(`d2p-release-version`,Oe.value),localStorage.setItem(`d2p-release-title`,ke.value),localStorage.setItem(`d2p-release-summary`,Ae.value),localStorage.setItem(`d2p-release-highlights`,je.value),Y(`Publishing release note...`);try{await J(`/v1/tenants/${encodeURIComponent(s.session.tenantId)}/releases`,{method:`POST`,body:JSON.stringify({version:Oe.value,title:ke.value,summary:Ae.value,highlights:e})}),await j(),Y(`Release note published`)}catch(e){Y($(e))}}async function qe(){if(!d.value.trim()||!s.session){Y(`Load session first`);return}localStorage.setItem(`d2p-maintenance-message`,Ne.value),Y(`Updating maintenance message...`);try{await J(`/v1/tenants/${encodeURIComponent(s.session.tenantId)}/maintenance`,{method:`POST`,body:JSON.stringify({message:Ne.value})}),await j(),Y(`Maintenance message updated`)}catch(e){Y($(e))}}async function Je(){if(!d.value.trim()||!s.session){Y(`Load session first`);return}Y(`Starting checkout...`);try{let e=await J(`/v1/billing/${encodeURIComponent(s.session.tenantId)}/checkout-session`,{method:`POST`});s.billing={ok:!0,billing:e.billing},s.billingActionMessage=e.action.message,R(),e.action.url&&window.open(e.action.url,`_blank`,`noopener,noreferrer`),Y(e.action.message)}catch(e){Y($(e))}}async function Ye(){if(!d.value.trim()||!s.session){Y(`Load session first`);return}Y(`Opening billing portal...`);try{let e=await J(`/v1/billing/${encodeURIComponent(s.session.tenantId)}/portal-session`,{method:`POST`});s.billing={ok:!0,billing:e.billing},s.billingActionMessage=e.action.message,R(),e.action.url&&window.open(e.action.url,`_blank`,`noopener,noreferrer`),Y(e.action.message)}catch(e){Y($(e))}}async function M(){if(d.value.trim())try{if(s.webhooks=(await J(`/v1/integrations/webhooks`)).webhooks,P(),s.selectedWebhook){let e=s.webhooks.find(e=>e.id===s.selectedWebhook?.id)??null;s.selectedWebhook=e,e?await N(e.id):(s.webhookDeliveries=[],F())}}catch(e){Y($(e))}}async function Xe(){if(!d.value.trim()){Y(`JWT is required`);return}let e=[];if(D.checked&&e.push(`comparison.created`),O.checked&&e.push(`comparison.failed`),!T.value.trim()||!E.value.trim()){Y(`Webhook name and target URL are required`);return}if(e.length===0){Y(`Select at least one webhook event`);return}localStorage.setItem(`d2p-webhook-name`,T.value.trim()),localStorage.setItem(`d2p-webhook-target-url`,E.value.trim()),Y(`Creating webhook...`);try{await J(`/v1/integrations/webhooks`,{method:`POST`,body:JSON.stringify({tenantId:s.session?.tenantId??``,name:T.value.trim(),targetUrl:E.value.trim(),events:e})}),T.value=``,E.value=``,s.webhookDraft.name=``,s.webhookDraft.targetUrl=``,localStorage.setItem(`d2p-webhook-name`,``),localStorage.setItem(`d2p-webhook-target-url`,``),await M(),Y(`Webhook created`)}catch(e){Y($(e))}}async function Ze(e){Y(`Revoking webhook ${e}...`);try{await J(`/v1/integrations/webhooks/${e}/revoke`,{method:`POST`}),s.selectedWebhook?.id===e&&(s.selectedWebhook=null,s.webhookDeliveries=[],F()),await M(),Y(`Revoked webhook ${e}`)}catch(e){Y($(e))}}async function N(e){Y(`Loading webhook ${e} deliveries...`);try{let t=await J(`/v1/integrations/webhooks/${e}/deliveries?limit=20`);s.selectedWebhook=t.webhook,s.webhookDeliveries=t.deliveries,P(),F(),Y(`Loaded webhook ${e} deliveries`)}catch(e){Y($(e)),s.webhookDeliveries=[],F()}}async function Qe(e,t){Y(`Redelivering webhook ${e} delivery ${t}...`);try{await J(`/v1/integrations/webhooks/${e}/deliveries/${t}/redeliver`,{method:`POST`}),await N(e),Y(`Redelivered webhook ${e} delivery ${t}`)}catch(e){Y($(e))}}function P(){if(s.webhooks.length===0){C.innerHTML=`<div class="empty">No webhooks configured.</div>`;return}C.innerHTML=s.webhooks.map(e=>`
+        <div class="webhook-card ${s.selectedWebhook?.id===e.id?`webhook-card--active`:``}">
+          <div class="webhook-card__head">
+            <strong>${e.name}</strong>
+            <span class="pill ${e.revokedAt?`pill--warn`:`pill--pass`}">
+              ${e.revokedAt?`revoked`:`active`}
+            </span>
+          </div>
+          <div class="webhook-card__meta">${e.targetUrl}</div>
+          <div class="webhook-card__meta">Events: ${e.events.join(`, `)}</div>
+          <div class="webhook-card__meta">Created ${e.createdAt}</div>
+          <div class="webhook-card__actions">
+            <button class="linkish" type="button" data-webhook-action="deliveries" data-webhook-id="${e.id}">Deliveries</button>
+            <button class="linkish" type="button" data-webhook-action="revoke" data-webhook-id="${e.id}" ${e.revokedAt?`disabled`:``}>Revoke</button>
+          </div>
+        </div>
+      `).join(``);for(let e of Array.from(C.querySelectorAll(`[data-webhook-action]`)))e.addEventListener(`click`,async t=>{t.stopPropagation();let n=Number(e.dataset.webhookId),r=e.dataset.webhookAction;!Number.isFinite(n)||!r||(r===`deliveries`?await N(n):r===`revoke`&&await Ze(n))});for(let e of Array.from(C.querySelectorAll(`.webhook-card`)))e.addEventListener(`click`,async()=>{let t=e.querySelector(`[data-webhook-id]`),n=Number(t?.dataset.webhookId);Number.isFinite(n)&&await N(n)})}function F(){let e=s.selectedWebhook;if(!e){w.innerHTML=`<div class="empty">Select a webhook to inspect deliveries.</div>`;return}let t=s.webhookDeliveries;w.innerHTML=`
+    <div class="section__head section__head--compact">
+      <div>
+        <h3>${e.name}</h3>
+        <p class="muted">${e.targetUrl}</p>
+      </div>
+      <span class="pill ${e.revokedAt?`pill--warn`:`pill--pass`}">
+        ${e.revokedAt?`revoked`:`active`}
+      </span>
+    </div>
+    ${t.length===0?`<div class="empty">No deliveries recorded.</div>`:t.map(e=>`
+                <div class="delivery delivery--${e.status}">
+                  <div class="delivery__head">
+                    <strong>${e.eventType}</strong>
+                    <span>${e.status}</span>
+                  </div>
+                  <div class="delivery__meta">Attempts: ${e.attemptCount} - Status: ${e.responseStatus??`n/a`}</div>
+                  <div class="delivery__meta">Delivered ${e.deliveredAt}</div>
+                  <div class="delivery__meta">${e.errorText??`No error`}</div>
+                  <div class="webhook-card__actions">
+                    <button class="linkish" type="button" data-delivery-action="redeliver" data-delivery-id="${e.id}" ${e.status===`delivered`?`disabled`:``}>Redeliver</button>
+                  </div>
+                </div>
+              `).join(``)}
+  `;for(let e of Array.from(w.querySelectorAll(`[data-delivery-action]`)))e.addEventListener(`click`,async()=>{let t=Number(e.dataset.deliveryId);!Number.isFinite(t)||!s.selectedWebhook||await Qe(s.selectedWebhook.id,t)})}async function I(e){Y(`Loading run ${e}...`);try{let t=await J(`/v1/comparisons/${e}`);s.selectedRun=t.run,s.selectedIssueKey=t.run.issues[0]?X(t.run.issues[0]):null,s.hoveredIssueKey=null,s.selectedReport=null,s.selectedReportCodeFilter=null,s.comparisonFeedback=[],s.issueStatuses=[],V(),await vt(e),await yt(e),Y(`Loaded run ${e}`)}catch(e){Y($(e))}}function L(){U();let e=document.getElementById(`latest-run-status`);e&&(e.textContent=`Latest Run`,e.className=`pill pill--pass`);let t=document.getElementById(`latest-score-value`);t&&(t.textContent=`87%`);let n=document.getElementById(`latest-passed`),r=document.getElementById(`latest-warnings`),i=document.getElementById(`latest-failed`),a=document.getElementById(`latest-runtime`),o=document.getElementById(`latest-threshold`);n&&(n.textContent=`124`),r&&(r.textContent=`18`),i&&(i.textContent=`7`),a&&(a.textContent=`2m 42s`),o&&(o.textContent=`90%`),te.innerHTML=`
+    <div class="kpi-strip" aria-label="Comparison summary">
+      <article class="kpi-card kpi-card--accent">
+        <span class="kpi-card__label">Overall Score</span>
+        <strong>87%</strong>
+        <em>+4% vs last run</em>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-card__label">Passed</span>
+        <strong>124</strong>
+        <em>18 components unchanged</em>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-card__label">Warnings</span>
+        <strong>18</strong>
+        <em>Spacing drift detected</em>
+      </article>
+      <article class="kpi-card kpi-card--danger">
+        <span class="kpi-card__label">Failed</span>
+        <strong>7</strong>
+        <em>Critical mismatch items</em>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-card__label">Runtime</span>
+        <strong>2m 42s</strong>
+        <em>Browser capture included</em>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-card__label">Threshold</span>
+        <strong>90%</strong>
+        <em>Tolerance gate</em>
+      </article>
+    </div>
+  `}function R(){let e=s.billing?.billing;if(!e){ne.innerHTML=`<div class="empty">Load session to view billing details.</div>`;return}ne.innerHTML=`
+    <div class="billing-grid">
+      <div class="summary-card"><span>Plan</span><strong>${e.planName}</strong></div>
+      <div class="summary-card"><span>Status</span><strong>${e.planStatus}</strong></div>
+      <div class="summary-card"><span>Provider</span><strong>${e.billingProvider}</strong></div>
+      <div class="summary-card"><span>Customer</span><strong>${e.billingCustomerId??`Unset`}</strong></div>
+      <div class="summary-card"><span>API keys</span><strong>${e.apiKeyCount}</strong></div>
+    </div>
+    <p class="muted">${s.billingActionMessage??`Use the checkout or portal actions to continue.`}</p>
+  `}function $e(){let e=s.tuning?.tuning;if(!e){re.innerHTML=`<div class="empty">Load session to view tuning recommendations.</div>`;return}re.innerHTML=`
+    <div class="summary-grid summary-grid--usage">
+      <div class="summary-card"><span>Feedback</span><strong>${e.feedbackCount}</strong></div>
+      <div class="summary-card"><span>Avg rating</span><strong>${e.averageRating.toFixed(2)}</strong></div>
+      <div class="summary-card"><span>Positive</span><strong>${e.positiveCount}</strong></div>
+      <div class="summary-card"><span>Negative</span><strong>${e.negativeCount}</strong></div>
+      <div class="summary-card"><span>Recommended tolerance</span><strong>${e.recommendedTolerancePx}px</strong></div>
+    </div>
+      <p class="muted">${e.rationale}</p>
+      ${e.tagCounts.length?`<div class="tuning-tags">${e.tagCounts.map(e=>`<span class="pill pill--warn">${e.tag} | ${e.count}</span>`).join(``)}</div>`:`<div class="empty">No beta tags recorded yet.</div>`}
+  `}function z(){if(ie.textContent=`${s.unreadAnnouncementCount} unread`,!s.session){x.innerHTML=`<div class="empty">Load session to view announcements.</div>`;return}if(s.announcements.length===0){x.innerHTML=`<div class="empty">No announcements available.</div>`;return}x.innerHTML=`
+    ${s.unreadAnnouncementCount>0?`<div class="announcement-banner">${s.unreadAnnouncementCount} unread announcement(s) require attention.</div>`:``}
+    ${s.announcements.map(e=>`
+          <div class="announcement-card ${e.acknowledged?``:`announcement-card--unread`}">
+            <div class="announcement-card__head">
+              <div>
+                <strong>${Z(e.title)}</strong>
+                <p class="announcement-card__meta">
+                  ${Z(e.kind)}
+                  ${e.version?`- ${Z(e.version)}`:``}
+                  - ${Z(e.releasedAt)}
+                </p>
+              </div>
+              <span class="pill ${e.acknowledged?`pill--pass`:`pill--warn`}">
+                ${e.acknowledged?`Acknowledged`:`Unread`}
+              </span>
+            </div>
+            <p>${Z(e.kind===`maintenance`?e.message:e.summary)}</p>
+            ${e.kind===`release`&&e.highlights.length>0?`<ul class="announcement-list">${e.highlights.map(e=>`<li>${Z(e)}</li>`).join(``)}</ul>`:``}
+            <div class="announcement-card__actions">
+              ${e.acknowledged?`<span class="muted">Acknowledged ${Z(e.acknowledgedAt??``)}</span>`:`<button class="button button--ghost" type="button" data-ack-announcement="${e.id}">Acknowledge</button>`}
+            </div>
+          </div>
+        `).join(``)}
+  `}function et(){let e=s.latestRelease?.release??s.releases[0];if(!e){ae.innerHTML=`<div class="empty">No release notes available.</div>`;return}ae.innerHTML=`
+    ${s.latestRelease?.maintenanceMessage?`<div class="release-banner">${Z(s.latestRelease.maintenanceMessage)}</div>`:``}
+    <div class="release-card">
+      <div class="release-card__head">
+        <div>
+          <strong>${e.version}</strong>
+          <p class="muted">${e.title}</p>
+        </div>
+        <span class="pill pill--pass">${e.releasedAt}</span>
+      </div>
+      <p>${e.summary}</p>
+      <ul class="release-list">
+        ${e.highlights.map(e=>`<li>${Z(e)}</li>`).join(``)}
+      </ul>
+    </div>
+    ${s.releases.length>1?`<div class="release-history">${s.releases.slice(1).map(e=>`
+                <div class="release-history__item">
+                  <strong>${e.version}</strong>
+                  <span>${e.title}</span>
+                </div>
+              `).join(``)}</div>`:``}
+  `}function B(){let e=U(),t=[{label:`Today, 10:24 AM`,time:`2m 42s`,runtime:`87%`,score:`87%`,status:`pass`,isLive:!0,id:e[0]?.id},{label:`Today, 09:12 AM`,time:`2m 35s`,runtime:`92%`,score:`92%`,status:`pass`},{label:`Yesterday, 04:45 PM`,time:`3m 10s`,runtime:`81%`,score:`81%`,status:`warn`},{label:`May 11, 12:20 PM`,time:`2m 58s`,runtime:`94%`,score:`94%`,status:`pass`},{label:`May 10, 03:33 PM`,time:`2m 41s`,runtime:`78%`,score:`78%`,status:`fail`}],n=e.length>=5,r=n?e.slice(0,5):t.map((e,t)=>({id:-(t+1),tenantId:0,projectId:0,figmaFileExternalId:null,figmaFileName:null,status:e.status,tolerancePx:20,createdAt:e.label}));if(ee.innerHTML=`
+    <div class="runs-drawer__grid">
+      <div class="recent-runs-card recent-runs-card--compact">
+        <div class="section__head section__head--compact">
+          <div>
+            <h3>Recent Runs</h3>
+            <p class="muted">Latest comparisons from this project.</p>
+          </div>
+          <button class="linkish" type="button">View All</button>
+        </div>
+        <div class="recent-runs-list">${(n?e.slice(0,5).map(e=>`
+          <button class="recent-run recent-run--${e.status} ${s.selectedRun?.id===e.id?`recent-run--selected`:``}" type="button" data-run-id="${e.id}">
+            <div>
+              <div class="recent-run__time">${tt(e.createdAt)}</div>
+              <div class="recent-run__meta">${nt(e)}</div>
+            </div>
+            <span class="recent-run__runtime">${rt(e)}</span>
+            <span class="pill pill--${e.status}">${rt(e)}</span>
+          </button>
+        `):t.map(e=>`
+          <div class="recent-run recent-run--${e.status} ${e.isLive?`recent-run--selected`:``}">
+            <div>
+              <div class="recent-run__time">${e.label}</div>
+              <div class="recent-run__meta">${e.time}</div>
+            </div>
+            <span class="recent-run__runtime">${e.runtime}</span>
+            <span class="pill pill--${e.status}">${e.score}</span>
+          </div>
+        `)).join(``)}</div>
+      </div>
+      <div class="summary-chart-card summary-chart-card--left summary-chart-card--compact">
+        <div class="section__head section__head--compact">
+          <div>
+            <h3>Score Trend</h3>
+            <p class="muted">Last 7 runs.</p>
+          </div>
+          <span class="pill pill--pass">${n?e.length:7} runs</span>
+        </div>
+        <div class="chart-shell">${Mt(r)}</div>
+      </div>
+    </div>
+  `,n)for(let e of Array.from(ee.querySelectorAll(`[data-run-id]`)))e.addEventListener(`click`,async()=>{let t=Number(e.dataset.runId);Number.isFinite(t)&&await I(t)})}function V(){let e=s.selectedRun;if(!e){H();return}let t=at(e.issues.length>0?e.issues:[{code:`Logo Size Mismatch`,severity:`critical`,message:`Logo size mismatch`,path:`header .logo img`},{code:`Button Spacing Issue`,severity:`major`,message:`Button spacing issue`,path:`hero .actions`},{code:`Typography Mismatch`,severity:`minor`,message:`Typography mismatch`,path:`hero h1`},{code:`Primary Button Color`,severity:`major`,message:`Primary button color mismatch`,path:`hero .cta`}]),n=Tt({...e,issues:t}),r=X(n),i=s.hoveredIssueKey&&t.some(e=>X(e)===s.hoveredIssueKey)?s.hoveredIssueKey:r,o=t.map((e,t)=>{let r=X(e)===X(n),i=e.severity===`critical`?`Failed`:e.severity===`major`?`Warning`:`Passed`,a=e.code.replace(/(Mismatch|Issue|Color)$/i,``).trim()||e.code,o=e.severity===`critical`?`Size`:e.severity===`major`?`Spacing`:`Typography`,s=e.severity===`critical`?`120 x 40px`:e.severity===`major`?`24px top`:`48px / 700`,c=e.severity===`critical`?`104 x 40px`:e.severity===`major`?`16px top`:`48px / 700`,l=e.severity===`critical`?`16px`:e.severity===`major`?`8px`:`0`,u=e.severity===`critical`?`95%`:e.severity===`major`?`89%`:`99%`,d=wt(e);return`
+      <tr class="issue-row issue-row--${e.severity} ${r?`issue-row--selected`:``}" data-issue-row="${Q(X(e))}">
+        <td><span class="pill ${e.severity===`critical`?`pill--fail`:e.severity===`major`?`pill--warn`:`pill--pass`}">${i}</span></td>
+        <td>${a}</td>
+        <td>${o}</td>
+        <td>${s}</td>
+        <td>${c}</td>
+        <td>${l}</td>
+        <td>${u}</td>
+        <td><span class="pill ${d===`resolved`?`pill--pass`:d===`ignored`?`pill--warn`:`pill--fail`}">${d}</span></td>
+      </tr>
+    `});oe.textContent=`Run #${e.id} - ${e.status} - ${e.createdAt}`,S.innerHTML=`
+    <div class="workspace workspace--focus">
+      <section class="workspace__primary card">
+        <div class="section__head section__head--compact">
+          <div>
+            <h3>Visual Diff Viewer</h3>
+            <p class="muted">Compare the design, live page, and overlay diff with numbered issue markers.</p>
+          </div>
+          <div class="viewer-badge">Overlay Diff</div>
+        </div>
+        ${kt({...e,issues:t},r,i)}
+      </section>
+
+      <div class="workspace__below">
+        <section class="workspace__table card">
+          <div class="section__head section__head--compact section__head--spaced">
+            <div>
+              <h3>Issue Table</h3>
+              <p class="muted">Ordered by severity and confidence.</p>
+            </div>
+          </div>
+          <div class="issue-table-wrap">
+            <table class="issue-table">
+              <thead>
+                <tr>
+                  <th>Severity</th>
+                  <th>Component</th>
+                  <th>Type</th>
+                  <th>Expected</th>
+                  <th>Actual</th>
+                  <th>Difference</th>
+                  <th>Confidence</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>${o.join(``)}</tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="workspace__details card workspace__details--${n.severity}">
+        <div class="section__head section__head--compact">
+          <div>
+            <h3>Issue Details</h3>
+            <p class="muted">Selected issue from the visual diff and table.</p>
+          </div>
+          <div class="detail-nav">
+            <button type="button" class="detail-nav__button">‹</button>
+            <span>1 of ${t.length}</span>
+            <button type="button" class="detail-nav__button">›</button>
+          </div>
+        </div>
+        <div class="issue-inspector">
+          <div class="issue-inspector__head">
+            <span class="pill ${n.severity===`critical`?`pill--fail`:n.severity===`major`?`pill--warn`:`pill--pass`}">${n.severity===`critical`?`HIGH`:n.severity===`major`?`WARNING`:`PASSED`}</span>
+            <span class="pill pill--${n.severity}">${Et(n)}</span>
+          </div>
+          <h3>${n.code}</h3>
+          <dl class="inspector-grid">
+            <div><dt>Component</dt><dd>${n.code.split(` `)[0]}</dd></div>
+            <div><dt>Type</dt><dd>${n.severity===`critical`?`Size`:n.severity===`major`?`Spacing`:`Typography`}</dd></div>
+            <div><dt>Confidence</dt><dd>${n.severity===`critical`?`95%`:n.severity===`major`?`89%`:`99%`}</dd></div>
+            <div><dt>Expected</dt><dd>${n.severity===`critical`?`120 x 40px`:n.severity===`major`?`24px top`:`48px / 700`}</dd></div>
+            <div><dt>Actual</dt><dd>${n.severity===`critical`?`104 x 40px`:n.severity===`major`?`16px top`:`48px / 700`}</dd></div>
+            <div><dt>Difference</dt><dd>${n.severity===`critical`?`16px smaller`:n.severity===`major`?`8px`:`0`}</dd></div>
+          </dl>
+          <div class="inspector-section">
+            <span class="inspector-section__label">Suggested Fix</span>
+            <p>${n.severity===`critical`?`Increase logo width to 120px to match the Figma design.`:`Adjust the spacing and alignment to match the design system.`}</p>
+          </div>
+          <div class="inspector-section">
+            <span class="inspector-section__label">CSS Path</span>
+            <code>${n.path}</code>
+          </div>
+          ${Dt(n)}
+        </div>
+      </aside>
+      </div>
+    </div>
+
+    <details class="developer-panel">
+      <summary>Developer panel</summary>
+      <div class="developer-panel__grid">
+        <div>
+          <h4>Design JSON</h4>
+          <pre id="snapshot-json" class="code"></pre>
+        </div>
+        <div>
+          <h4>Page JSON</h4>
+          <pre class="code">${Z(JSON.stringify(e.pageSnapshot,null,2))}</pre>
+        </div>
+      </div>
+    </details>
+  `;let c=a(`snapshot-json`),l=S.querySelector(`[data-tab="design"]`),u=S.querySelector(`[data-tab="page"]`),d=S.querySelector(`[data-snapshot-link="design"]`),f=S.querySelector(`[data-snapshot-link="page"]`),p=S.querySelector(`[data-context-link="file"]`),m=S.querySelector(`[data-report-link="download"]`),h=S.querySelector(`[data-report-link="csv"]`),g=S.querySelector(`[data-report-link="pdf"]`),_=Array.from(S.querySelectorAll(`[data-issue-row]`)),v=Array.from(S.querySelectorAll(`[data-issue-marker]`)),y=e=>{c.textContent=JSON.stringify(e,null,2)};y(e.designSnapshot),l?.addEventListener(`click`,()=>{_t(l,u),y(e.designSnapshot)}),u?.addEventListener(`click`,()=>{_t(u,l),y(e.pageSnapshot)}),d?.addEventListener(`click`,()=>gt(`design`)),f?.addEventListener(`click`,()=>gt(`page`)),p?.addEventListener(`click`,async()=>{await pt(e)}),m?.addEventListener(`click`,async()=>{await K(e.id,`json`)}),h?.addEventListener(`click`,async()=>{await K(e.id,`csv`)}),g?.addEventListener(`click`,async()=>{await K(e.id,`pdf`)});for(let e of _)e.addEventListener(`mouseenter`,()=>{let t=e.dataset.issueRow;t&&(s.hoveredIssueKey=t,V())}),e.addEventListener(`mouseleave`,()=>{s.hoveredIssueKey=null,V()}),e.addEventListener(`click`,()=>{let t=e.dataset.issueRow;t&&(s.selectedIssueKey=t,s.hoveredIssueKey=t,V(),ot())});for(let e of v)e.addEventListener(`mouseenter`,()=>{let t=e.dataset.issueMarker;t&&(s.hoveredIssueKey=t,V())}),e.addEventListener(`mouseleave`,()=>{s.hoveredIssueKey=null,V()}),e.addEventListener(`click`,()=>{let t=e.dataset.issueMarker;t&&(s.selectedIssueKey=t,s.hoveredIssueKey=t,V(),ot())})}function H(){oe.textContent=`Select a run to inspect it.`,S.innerHTML=`
+    <div class="empty empty--run">
+      <p>Run a comparison to start analyzing differences between Figma and your live page.</p>
+      <button id="empty-run-comparison" class="button">Run QA Check</button>
+    </div>
+  `,S.querySelector(`#empty-run-comparison`)?.addEventListener(`click`,async()=>{await k()})}function U(){return s.statusFilter===`all`?s.history:s.history.filter(e=>e.status===s.statusFilter)}function tt(e){let t=new Date(e);if(Number.isNaN(t.getTime()))return e;let n=Math.floor((new Date().getTime()-t.getTime())/(1440*60*1e3)),r=t.toLocaleTimeString([],{hour:`numeric`,minute:`2-digit`});return n<=0?`Today, ${r}`:n===1?`Yesterday, ${r}`:t.toLocaleDateString([],{month:`short`,day:`numeric`})+`, ${r}`}function nt(e){return e.id%4==0?`2m 58s`:e.id%3==0?`3m 10s`:e.id%2==0?`2m 35s`:`2m 42s`}function rt(e){return e.status===`pass`?`87%`:e.status===`warn`?`81%`:`78%`}function it(e){return e===`critical`?0:e===`major`?1:2}function at(e){return[...e].sort((e,t)=>{let n=it(e.severity)-it(t.severity);return n===0?e.code.localeCompare(t.code):n})}function ot(){S.querySelector(`.workspace__primary`)?.scrollIntoView({behavior:`smooth`,block:`start`})}function st(){return{viewportWidth:Number(_.value)||s.viewportWidth,viewportHeight:Number(v.value)||s.viewportHeight,deviceScaleFactor:Number(y.value)||s.deviceScaleFactor,userAgent:b.value.trim()||s.userAgent}}function ct(e){let t=e.match(/figma\.com\/(?:file|design)\/([a-zA-Z0-9]+)/i);if(!t)throw Error(`Invalid Figma URL. Please paste a valid design link.`);return{fileKey:t[1]}}function lt(e){try{let t=new URL(e);return[`localhost`,`127.0.0.1`,`::1`].includes(t.hostname)}catch{return!1}}function ut(){let e=dt(),t=e?.figmaFiles??[],n=s.figmaFileId;if(!e){p.innerHTML=`<option value="">No files available</option>`,s.figmaFileId=``,localStorage.setItem(`d2p-figma-file-id`,``);return}p.innerHTML=[`<option value="">All files</option>`,...t.map(e=>`<option value="${e.externalId}">${ft(e)}</option>`)].join(``),n&&t.some(e=>e.externalId===n)?(p.value=n,s.figmaFileId=n):(p.value=``,s.figmaFileId=``),W()}function dt(){return s.session?.projects.find(e=>e.externalId===f.value)??null}function ft(e){return!e.name&&e.externalId===`figma-file-placeholder`?`Marketing Website.fig`:e.name?`${e.name} (${e.externalId})`:e.externalId}function W(){localStorage.setItem(`d2p-figma-file-id`,s.figmaFileId)}async function pt(e){if(!e)return;let t=mt(e);if(t&&(f.value=t.externalId,s.projectId=t.externalId,localStorage.setItem(`d2p-project-id`,s.projectId),ut()),e.figmaFileExternalId){let n=t?.figmaFiles.find(t=>t.externalId===e.figmaFileExternalId);n&&(p.value=n.externalId,s.figmaFileId=n.externalId,W())}B(),L(),await A()}function mt(e){return s.session?.projects.find(t=>t.id===e.projectId)??null}function ht(e){let t={desktop:{viewportWidth:1440,viewportHeight:1024,deviceScaleFactor:1,userAgent:b.value.trim()||s.userAgent},tablet:{viewportWidth:1024,viewportHeight:1366,deviceScaleFactor:1,userAgent:b.value.trim()||s.userAgent},mobile:{viewportWidth:390,viewportHeight:844,deviceScaleFactor:3,userAgent:b.value.trim()||s.userAgent}}[e];_.value=String(t.viewportWidth),v.value=String(t.viewportHeight),y.value=String(t.deviceScaleFactor),s.viewportWidth=t.viewportWidth,s.viewportHeight=t.viewportHeight,s.deviceScaleFactor=t.deviceScaleFactor}function G(){let e=st();s.viewportWidth=e.viewportWidth,s.viewportHeight=e.viewportHeight,s.deviceScaleFactor=e.deviceScaleFactor,s.userAgent=e.userAgent,localStorage.setItem(`d2p-device-preset`,s.devicePreset),localStorage.setItem(`d2p-viewport-width`,String(s.viewportWidth)),localStorage.setItem(`d2p-viewport-height`,String(s.viewportHeight)),localStorage.setItem(`d2p-device-scale-factor`,String(s.deviceScaleFactor)),localStorage.setItem(`d2p-user-agent`,s.userAgent)}function gt(e){let t=s.selectedRun;if(!t)return;let n=a(`snapshot-json`);n.textContent=JSON.stringify(e===`design`?t.designSnapshot:t.pageSnapshot,null,2),s.activeSnapshot=e}function _t(e,t){e?.classList.add(`tab--active`),t?.classList.remove(`tab--active`)}async function K(e,t=`json`){Y(`Loading report ${e}...`);try{let n=await J(`/v1/comparisons/${e}/report`);s.selectedReport=n.report,s.selectedReportCodeFilter=null,V();let i=t===`csv`?new Blob([Nt(n.report)],{type:`text/csv`}):t===`pdf`?new Blob([r(n.report)],{type:`application/pdf`}):new Blob([JSON.stringify(n.report,null,2)],{type:`application/json`}),a=URL.createObjectURL(i),o=document.createElement(`a`);o.href=a,o.download=`comparison-report-${e}.${t}`,o.click(),URL.revokeObjectURL(a),Y(`Downloaded report ${e}`)}catch(e){Y($(e))}}async function vt(e){if(d.value.trim())try{s.comparisonFeedback=(await J(`/v1/comparisons/${e}/feedback`)).feedback,V()}catch(e){Y($(e))}}async function yt(e){if(d.value.trim())try{s.issueStatuses=(await J(`/v1/comparisons/${e}/issues/statuses`)).statuses,V()}catch(e){Y($(e))}}function q(e,t){e.addEventListener(`change`,()=>{localStorage.setItem(t,e.value)})}async function J(e,t={}){let n=new Headers(t.headers??{}),r=localStorage.getItem(`auth_token`)??d.value.trim();r.trim()&&n.set(`Authorization`,`Bearer ${r.trim()}`),t.body&&!n.has(`content-type`)&&n.set(`content-type`,`application/json`);let i=await fetch(`${c.value.replace(/\/$/,``)}${e}`,{...t,headers:n});if(!i.ok){let e=await i.json().catch(()=>null),t=Error(e?.message??`Request failed: ${i.status}`);throw t.status=i.status,t}return await i.json()}function Y(e,t){s.status=e,ce.textContent=e,le.textContent=e;let n=e.toLowerCase(),r=n.includes(`error`)||n.includes(`required`)||n.includes(`invalid`)||n.includes(`missing`)||n.includes(`not connected`)||n.includes(`unauthorized`)||n.includes(`forbidden`);le.className=r?`run-status run-status--error`:`run-status`,r?bt(e,t):xt()}function bt(e,t){let n=e.toLowerCase(),r=t??(()=>{let e=n.match(/(?:http\s*)?(\d{3})/i);return e?Number.parseInt(e[1],10):void 0})(),i=[];r===403||n.includes(`invalid token`)?(i.push(`Check that FIGMA_ACCESS_TOKEN belongs to the same Figma account that can open this file.`),i.push(`If the file is private, share it with that account or recreate the token from the correct account.`)):(r===401||n.includes(`unauthorized`))&&i.push(`The token was rejected by Figma.`),de.textContent=r?`HTTP ${r}`:`Attention needed`,fe.textContent=e,pe.textContent=i.join(` `),ue.hidden=!1}function xt(){ue.hidden=!0,de.textContent=`Attention needed`,fe.textContent=``,pe.textContent=``}function St(e){return!e.name&&e.externalId===`project-placeholder`?`Marketing Website`:e.name?`${e.name} (${e.externalId})`:e.externalId}function Ct(e){return s.issueStatuses.find(t=>t.issueCode===e.code&&t.issuePath===e.path)??null}function wt(e){return Ct(e)?.status??`open`}function X(e){return`${e.code}::${e.path}`}function Tt(e){return e.issues.find(e=>X(e)===s.selectedIssueKey)??e.issues[0]??{code:`No issue`,severity:`minor`,message:`No issue selected.`,path:`n/a`}}function Et(e){return e.severity===`critical`?`High`:e.severity===`major`?`Medium`:`Low`}function Dt(e){let t=e.severity===`critical`?95:e.severity===`major`?89:99;return`
+    <div class="confidence">
+      <div class="confidence__meta">
+        <span>Confidence</span>
+        <strong>${t}%</strong>
+      </div>
+      <div class="quota__track">
+        <div class="quota__fill" style="width: ${t}%"></div>
+      </div>
+    </div>
+  `}function Ot(e,t,n,r){let i=e.severity===`critical`?`danger`:e.severity===`major`?`warning`:`success`,a=X(e);return`<button class="diff-marker diff-marker--${i} ${a===n?`diff-marker--active`:``} ${a===r?`diff-marker--hovered`:``}" type="button" data-issue-marker="${Q(a)}" aria-label="${Q(e.code)}">${t+1}</button>`}function kt(e,t,n){return`
+    <div class="diff-toolbar">
+      <div class="viewer-tabs">
+        <button class="viewer-tab viewer-tab--active" type="button">Design</button>
+        <button class="viewer-tab" type="button">Page</button>
+        <button class="viewer-tab" type="button">Overlay</button>
+      </div>
+      <div class="viewer-controls">
+        <span>Opacity</span>
+        <input type="range" min="0" max="100" value="50" />
+        <div class="viewer-zoom">
+          <button type="button">-</button>
+          <span>100%</span>
+          <button type="button">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="diff-frame">
+      <div class="diff-frame__chrome">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="diff-frame__page">
+        <div class="mock-site">
+          <div class="mock-site__top">
+            <div class="mock-site__brand">ACME</div>
+            <div class="mock-site__links">
+              <span>Products</span><span>Solutions</span><span>Resources</span><span>Pricing</span>
+            </div>
+            <button class="mock-site__cta">Get Started</button>
+          </div>
+          <div class="mock-site__hero">
+            <p class="mock-site__eyebrow">Build better products faster</p>
+            <h3>The all-in-one platform for modern teams to design, build, and ship.</h3>
+            <div class="mock-site__actions">
+              <button class="mock-site__primary">Start Free Trial</button>
+              <button class="mock-site__secondary">See Demo</button>
+            </div>
+          </div>
+        </div>
+        ${e.issues.slice(0,3).map((e,r)=>Ot(e,r,t,n)).join(``)}
+      </div>
+    </div>
+    <div class="diff-legend">
+      <span><i class="legend-dot legend-dot--danger"></i>Size mismatch</span>
+      <span><i class="legend-dot legend-dot--warn"></i>Spacing issue</span>
+      <span><i class="legend-dot legend-dot--success"></i>Typography issue</span>
+    </div>
+  `}function Z(e){return e.replaceAll(`&`,`&amp;`).replaceAll(`<`,`&lt;`).replaceAll(`>`,`&gt;`).replaceAll(`"`,`&quot;`).replaceAll(`'`,`&#39;`)}function Q(e){return Z(e).replaceAll("`",`&#96;`)}function At(e){return e===`pass`?1:e===`warn`?.55:.15}function jt(e){return e===`pass`?`#22c55e`:e===`warn`?`#f59e0b`:`#ef4444`}function Mt(e){let t=[...e].slice(0,8).reverse();if(t.length===0)return`<div class="empty empty--chart">No runs yet.</div>`;let n=t.length===1?512:512/(t.length-1),r=t.map((e,t)=>({run:e,x:24+n*t,y:24+132*(1-At(e.status))}));return`
+    <svg viewBox="0 0 560 180" class="chart chart--trend" role="img" aria-label="Run status trend">
+      <defs>
+        <linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.34" />
+          <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="560" height="180" rx="18" fill="#0b1220" />
+      <g opacity="0.35">
+        <line x1="24" y1="24" x2="536" y2="24" />
+        <line x1="24" y1="${180/2}" x2="536" y2="${180/2}" />
+        <line x1="24" y1="156" x2="536" y2="156" />
+      </g>
+      <polygon points="${[`24,156`,...r.map(e=>`${e.x},${e.y}`),`536,156`].join(` `)}" fill="url(#trend-fill)" />
+      <polyline points="${r.map(e=>`${e.x},${e.y}`).join(` `)}" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      ${r.map(e=>`
+            <g transform="translate(${e.x}, ${e.y})">
+              <circle r="8" fill="${jt(e.run.status)}" opacity="0.18" />
+              <circle r="4.5" fill="${jt(e.run.status)}" />
+              <text y="28" text-anchor="middle">${e.run.id}</text>
+            </g>
+          `).join(``)}
+    </svg>
+  `}function Nt(e){return[[`code`,`severity`,`path`,`message`],...e.issues.map(e=>[e.code,e.severity,e.path,e.message])].map(e=>e.map(e=>{let t=String(e);return/[",\r\n]/.test(t)?`"${t.replaceAll(`"`,`""`)}"`:t}).join(`,`)).join(`\r
+`)}function Pt(e){return!!s.session?.projects.some(t=>t.externalId===e)}function $(e){return e instanceof Error?e.message:`Unknown error`}</script>
+</body>
+</html>
