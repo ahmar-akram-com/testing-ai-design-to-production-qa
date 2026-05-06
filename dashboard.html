@@ -1374,6 +1374,7 @@ function toggleIssue(runId, idx) {
    QA CHECK
 ══════════════════════════════════════════════ */
 const QA_PHASES = [
+  { label: 'Loading QA markdown rule dataset', ms: 500 },
   { label: 'Fetching Figma design snapshot', ms: 750 },
   { label: 'Taking live page screenshot',    ms: 900 },
   { label: 'Running comparison engine',       ms: 850 },
@@ -1402,6 +1403,7 @@ async function runQA() {
   }
 
   setStatus('Running QA check…');
+  await loadMarkdownDocs(true);
   for (let i = 0; i < QA_PHASES.length; i++) {
     renderPhases(i);
     await sleep(QA_PHASES[i].ms);
@@ -1409,7 +1411,6 @@ async function runQA() {
   renderPhases(QA_PHASES.length); // all done
 
   // Prefer the generated QA markdown report so checklist rules, evidence, and screenshots are visible here.
-  await loadMarkdownDocs(true);
   const allIssues = [
     { code:'style.font-size',   severity:'minor',    path:'Hero / Headline',       message:`Font size differs by 2px (48px vs 46px)` },
     { code:'style.gap',         severity:'minor',    path:'Features / Grid',        message:`Item spacing differs by 4px (24px vs 28px)` },
