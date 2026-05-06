@@ -3,7 +3,20 @@ import path from 'node:path';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
-function issue({ title, severity = 'Medium', priority = 'P2', summary, actual, expected, impact, evidence = [], acceptance = [] }) {
+function issue({
+  title,
+  severity = 'Medium',
+  priority = 'P2',
+  summary,
+  actual,
+  expected,
+  impact,
+  evidence = [],
+  acceptance = [],
+  viewport = '',
+  screenshots = [],
+  ruleRefs = [],
+}) {
   return {
     title,
     severity,
@@ -12,9 +25,76 @@ function issue({ title, severity = 'Medium', priority = 'P2', summary, actual, e
     actual,
     expected,
     impact,
-    evidence,
+    evidence: [...new Set(evidence.filter(Boolean))],
     acceptance,
+    viewport,
+    screenshots: [...new Set(screenshots.filter(Boolean))],
+    ruleRefs,
   };
+}
+
+function ruleTitle(rule) {
+  return path.basename(rule.file || 'QA rule file');
+}
+
+function ruleBullets(rules) {
+  return rules.flatMap((rule) =>
+    String(rule.content || '')
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => /^[-*]\s+/.test(line))
+      .map((line) => ({
+        file: rule.file,
+        title: ruleTitle(rule),
+        text: line.replace(/^[-*]\s+/, ''),
+      })),
+  );
+}
+
+function matchRuleRefs(issueDraft, ruleIndex = []) {
+  const haystack = `${issueDraft.title} ${issueDraft.summary} ${issueDraft.expected}`.toLowerCase();
+  const tokens = [
+    'figma',
+    'design',
+    'logo',
+    'external',
+    'noopener',
+    'heading',
+    'metadata',
+    'title',
+    'description',
+    'image',
+    'alt',
+    'link',
+    'responsive',
+    'overflow',
+    'accessibility',
+    'wcag',
+    'console',
+    'network',
+    'security',
+    'header',
+  ].filter((token) => haystack.includes(token));
+
+  const matches = ruleIndex
+    .filter((rule) => tokens.some((token) => rule.text.toLowerCase().includes(token)))
+    .slice(0, 4);
+
+  return matches.map((match) => `${match.title}: ${match.text}`);
+}
+
+function fromScan(scan, data, ruleIndex) {
+  const draft = {
+    ...data,
+    viewport: scan.viewport.name,
+    screenshots: [scan.screenshotPath],
+    evidence: [...(data.evidence || []), scan.screenshotPath],
+  };
+
+  return issue({
+    ...draft,
+    ruleRefs: data.ruleRefs || matchRuleRefs(draft, ruleIndex),
+  });
 }
 
 async function compareScreenshots(figmaPath, websitePath, outputDir) {
@@ -143,7 +223,7 @@ function findSkippedHeadingLevels(scan) {
   return skipped;
 }
 
-function findChecklistIssues(scan) {
+function findChecklistIssues(scan, ruleIndex = []) {
   const issues = [];
   const externalWithoutNewTab = findExternalLinksWithoutNewTab(scan);
   const externalWithoutNoopener = findExternalLinksWithoutNoopener(scan);
@@ -152,7 +232,7 @@ function findChecklistIssues(scan) {
 
   if (!scan.dom.title || scan.dom.title.length < 8) {
     issues.push(
-      issue({
+      fromScan(scan, {
         title: `[QA Checklist]: Page title metadata is missing or too short on ${scan.viewport.name}`,
         severity: 'Medium',
         priority: 'P2',
@@ -162,13 +242,13 @@ function findChecklistIssues(scan) {
         impact: 'Weak metadata reduces SEO quality, sharing clarity, and browser tab usability.',
         evidence: [scan.domPath],
         acceptance: ['Page title is unique, relevant, and descriptive.'],
-      }),
+      }, ruleIndex),
     );
   }
 
   if (!scan.dom.metaDescription || scan.dom.metaDescription.length < 40) {
     issues.push(
-      issue({
+      fromScan(scan, {
         title: `[QA Checklist]: Meta description is missing or too short on ${scan.viewport.name}`,
         severity: 'Medium',
         priority: 'P2',
@@ -178,13 +258,13 @@ function findChecklistIssues(scan) {
         impact: 'Missing descriptions reduce SEO and social preview quality.',
         evidence: [scan.domPath],
         acceptance: ['Meta description is present, unique, and relevant to the page.'],
-      }),
+      }, ruleIndex),
     );
   }
 
   if (externalWithoutNewTab.length) {
     issues.push(
-      issue({
+      fromScan(scan, {
         title: `[QA Checklist]: External links should open in a new tab on ${scan.viewport.name}`,
         severity: 'Medium',
         priority: 'P2',
@@ -197,13 +277,13 @@ function findChecklistIssues(scan) {
         impact: 'External navigation can pull users away from the implemented page unexpectedly.',
         evidence: [scan.domPath],
         acceptance: ['Every external link uses target="_blank".', 'Internal section/page links continue to open normally.'],
-      }),
+      }, ruleIndex),
     );
   }
 
   if (externalWithoutNoopener.length) {
     issues.push(
-      issue({
+      fromScan(scan, {
         title: `[QA Checklist]: External new-tab links should use noopener on ${scan.viewport.name}`,
         severity: 'Low',
         priority: 'P3',
@@ -216,13 +296,13 @@ function findChecklistIssues(scan) {
         impact: 'Missing noopener weakens security isolation for external tabs.',
         evidence: [scan.domPath],
         acceptance: ['External target="_blank" links include rel="noopener".'],
-      }),
+      }, ruleIndex),
     );
   }
 
   if (logoIssues.notLinked.length) {
     issues.push(
-      issue({
+      fromScan(scan, {
         title: `[QA Checklist]: Logo should be clickable on ${scan.viewport.name}`,
         severity: 'Medium',
         priority: 'P2',
@@ -232,13 +312,13 @@ function findChecklistIssues(scan) {
         impact: 'Users expect logo clicks to return to the homepage.',
         evidence: [scan.domPath],
         acceptance: ['All logo instances link to the approved homepage URL.'],
-      }),
+      }, ruleIndex),
     );
   }
 
   if (logoIssues.invalidFormat.length) {
     issues.push(
-      issue({
+      fromScan(scan, {
         title: `[QA Checklist]: Logo should use PNG, SVG, or WebP on ${scan.viewport.name}`,
         severity: 'Low',
         priority: 'P3',
@@ -248,13 +328,13 @@ function findChecklistIssues(scan) {
         impact: 'Non-preferred logo formats can reduce sharpness or optimization quality.',
         evidence: [scan.domPath],
         acceptance: ['Logo files use PNG, SVG, or WebP and remain sharp across device densities.'],
-      }),
+      }, ruleIndex),
     );
   }
 
   if (logoIssues.altText.length) {
     issues.push(
-      issue({
+      fromScan(scan, {
         title: `[QA Checklist]: Logo alt text should include site or company name on ${scan.viewport.name}`,
         severity: 'Medium',
         priority: 'P2',
@@ -264,13 +344,13 @@ function findChecklistIssues(scan) {
         impact: 'Screen reader users may not receive the brand identity from logo images.',
         evidence: [scan.domPath],
         acceptance: ['Logo alt text includes the site name or company name, or the linked logo has an equivalent accessible name approved by QA.'],
-      }),
+      }, ruleIndex),
     );
   }
 
   if (skippedHeadings.length) {
     issues.push(
-      issue({
+      fromScan(scan, {
         title: `[QA Checklist]: Heading hierarchy skips levels on ${scan.viewport.name}`,
         severity: 'Medium',
         priority: 'P2',
@@ -280,7 +360,7 @@ function findChecklistIssues(scan) {
         impact: 'Skipped heading levels can reduce scanability, accessibility, and SEO quality.',
         evidence: [scan.domPath],
         acceptance: ['Heading levels follow a logical hierarchy without skipped levels.'],
-      }),
+      }, ruleIndex),
     );
   }
 
@@ -430,9 +510,10 @@ function collectTextMismatchIssues(figma, website) {
   ];
 }
 
-export async function compareDesignToWebsite({ figma, website, config, preflight }) {
+export async function compareDesignToWebsite({ figma, website, config, preflight, rules = [] }) {
   const issues = [];
   const comparisonDir = path.join(config.outputDir, 'comparison');
+  const ruleIndex = ruleBullets(rules);
   await fs.mkdir(comparisonDir, { recursive: true });
 
   issues.push(...collectPreflightIssues(preflight));
@@ -460,7 +541,7 @@ export async function compareDesignToWebsite({ figma, website, config, preflight
   for (const scan of website.scans) {
     if (scan.navigationError) {
       issues.push(
-        issue({
+        fromScan(scan, {
           title: `[QA]: Target URL could not be opened on ${scan.viewport.name}`,
           severity: 'High',
           priority: 'P0',
@@ -473,7 +554,7 @@ export async function compareDesignToWebsite({ figma, website, config, preflight
             'Start the local frontend server or provide a reachable staging URL.',
             'Rerun npm run qa:design and confirm Playwright can capture the page.',
           ],
-        }),
+        }, ruleIndex),
       );
       continue;
     }
@@ -481,7 +562,7 @@ export async function compareDesignToWebsite({ figma, website, config, preflight
     const overflow = scan.dom.scroll.width - scan.dom.viewport.width;
     if (overflow > 1) {
       issues.push(
-        issue({
+        fromScan(scan, {
           title: `[QA]: Horizontal overflow detected on ${scan.viewport.name}`,
           severity: 'High',
           priority: 'P1',
@@ -491,13 +572,13 @@ export async function compareDesignToWebsite({ figma, website, config, preflight
           impact: 'Horizontal overflow creates a broken mobile and tablet reading experience.',
           evidence: [scan.screenshotPath, scan.domPath],
           acceptance: ['No horizontal overflow at 320px and above.', 'All content remains readable without side-scrolling.'],
-        }),
+        }, ruleIndex),
       );
     }
 
     if (scan.axe.violations.length) {
       issues.push(
-        issue({
+        fromScan(scan, {
           title: `[QA]: Accessibility violations detected on ${scan.viewport.name}`,
           severity: 'High',
           priority: 'P1',
@@ -507,14 +588,14 @@ export async function compareDesignToWebsite({ figma, website, config, preflight
           impact: 'Accessibility issues may block keyboard, screen reader, low vision, or compliance requirements.',
           evidence: [scan.axePath, scan.screenshotPath],
           acceptance: ['Automated axe scan returns zero violations.', 'Manual keyboard and screen reader smoke checks pass.'],
-        }),
+        }, ruleIndex),
       );
     }
 
     const errors = scan.consoleMessages.filter((message) => ['error', 'warning'].includes(message.type));
     if (errors.length || scan.failedRequests.length) {
       issues.push(
-        issue({
+        fromScan(scan, {
           title: `[QA]: Console or network errors detected on ${scan.viewport.name}`,
           severity: 'Medium',
           priority: 'P2',
@@ -529,14 +610,14 @@ export async function compareDesignToWebsite({ figma, website, config, preflight
           impact: 'Runtime errors can indicate broken interactions, missing assets, or unstable integrations.',
           evidence: [scan.consolePath],
           acceptance: ['No unexpected console errors or failed critical requests during page load.'],
-        }),
+        }, ruleIndex),
       );
     }
 
     const h1s = scan.dom.headings.filter((heading) => heading.tag === 'h1');
     if (h1s.length !== 1) {
       issues.push(
-        issue({
+        fromScan(scan, {
           title: `[QA]: Page should have exactly one H1 on ${scan.viewport.name}`,
           severity: 'Medium',
           priority: 'P2',
@@ -546,14 +627,14 @@ export async function compareDesignToWebsite({ figma, website, config, preflight
           impact: 'Incorrect heading structure reduces accessibility and SEO quality.',
           evidence: [scan.domPath],
           acceptance: ['Exactly one descriptive H1 is present.', 'Heading levels follow a logical order.'],
-        }),
+        }, ruleIndex),
       );
     }
 
     const placeholderLinks = findPlaceholderLinks(scan);
     if (placeholderLinks.length) {
       issues.push(
-        issue({
+        fromScan(scan, {
           title: `[QA]: Placeholder links detected on ${scan.viewport.name}`,
           severity: 'Low',
           priority: 'P2',
@@ -563,14 +644,14 @@ export async function compareDesignToWebsite({ figma, website, config, preflight
           impact: 'Users may hit dead ends and conversion paths may be incomplete.',
           evidence: [scan.domPath],
           acceptance: ['All header, footer, CTA, and card links point to approved destinations.'],
-        }),
+        }, ruleIndex),
       );
     }
 
     const missingAlt = findMissingImageAlts(scan);
     if (missingAlt.length) {
       issues.push(
-        issue({
+        fromScan(scan, {
           title: `[QA]: Images missing alt attributes on ${scan.viewport.name}`,
           severity: 'Medium',
           priority: 'P2',
@@ -580,11 +661,11 @@ export async function compareDesignToWebsite({ figma, website, config, preflight
           impact: 'Screen reader users may miss meaningful visual content or hear noisy file names.',
           evidence: [scan.domPath],
           acceptance: ['Every image has either meaningful alt text or an intentional empty alt attribute.'],
-        }),
+        }, ruleIndex),
       );
     }
 
-    issues.push(...findChecklistIssues(scan));
+    issues.push(...findChecklistIssues(scan, ruleIndex));
   }
 
   issues.push(...collectTextMismatchIssues(figma, website));

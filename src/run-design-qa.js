@@ -100,7 +100,7 @@ async function main() {
     const preflight = await runSecurityPreflight(config, rules);
     const figma = await extractFigmaDesign(config);
     const website = await scanWebsite(config);
-    const comparison = await compareDesignToWebsite({ figma, website, config, preflight });
+    const comparison = await compareDesignToWebsite({ figma, website, config, preflight, rules });
     const aiReview = await runAiReview({ config, rules, issues: comparison.issues });
     const report = await generateReport({ config, rules, figma, website, comparison, aiReview, preflight });
     const github = await createGithubIssues({ config, githubIssues: report.githubIssues });

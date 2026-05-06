@@ -110,6 +110,13 @@ select.inp{cursor:pointer}
 .irow-code{font-weight:600;font-size:12px;margin-bottom:2px}
 .irow-path{font-family:ui-monospace,monospace;font-size:11px;color:var(--blue);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .irow-msg{font-size:11px;color:var(--t2);line-height:1.4}
+.issue-detail{margin-top:8px;display:grid;gap:6px;font-size:11px;color:var(--t2);line-height:1.45}
+.issue-detail b{color:var(--t1);font-weight:650}
+.issue-detail ul{margin:3px 0 0 15px;padding:0}
+.issue-shot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:4px}
+.issue-shot{border:1px solid var(--b1);border-radius:6px;overflow:hidden;background:var(--bg4)}
+.issue-shot img{display:block;width:100%;height:90px;object-fit:cover;border-bottom:1px solid var(--b1)}
+.issue-shot span{display:block;padding:5px 7px;font-family:ui-monospace,monospace;font-size:10px;color:var(--t2);word-break:break-all}
 /* Progress */
 .pbar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:7px}
 .pfill{height:100%;border-radius:2px;transition:width .5s}
@@ -1006,6 +1013,131 @@ function mdExcerpt(value = '', length = 170) {
   return String(value).replace(/[#*_>`\[\]]/g, '').replace(/\s+/g, ' ').trim().slice(0, length);
 }
 
+function cleanMarkdownText(value = '') {
+  return String(value)
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
+    .replace(/[#*_>`]/g, '')
+    .replace(/\r/g, '')
+    .trim();
+}
+
+function escapeRegExp(value = '') {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function markdownSection(content = '', title = '') {
+  const match = String(content).match(new RegExp(`## ${escapeRegExp(title)}\\s*\\n([\\s\\S]*?)(?=\\n##\\s|$)`, 'i'));
+  return match ? match[1].trim() : '';
+}
+
+function markdownField(content = '', label = '') {
+  const match = String(content).match(new RegExp(`- ${escapeRegExp(label)}:\\s*([^\\n]+)`, 'i'));
+  return match ? cleanMarkdownText(match[1]) : '';
+}
+
+function markdownBullets(value = '') {
+  return String(value)
+    .split(/\n/)
+    .map((line) => line.trim())
+    .filter((line) => /^[-*]\s+/.test(line))
+    .map((line) => cleanMarkdownText(line.replace(/^[-*]\s+/, '')))
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
+function dashboardSeverity(value = '') {
+  const severity = String(value).toLowerCase();
+  if (/critical|high|p0|p1/.test(severity)) return 'critical';
+  if (/medium|major|p2/.test(severity)) return 'major';
+  return 'minor';
+}
+
+function issueCodeFromTitle(title = '') {
+  return cleanMarkdownText(title)
+    .replace(/^\[[^\]]+\]:?\s*/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '.')
+    .replace(/^\.+|\.+$/g, '')
+    .slice(0, 64) || 'qa.issue';
+}
+
+function latestMarkdownIssues() {
+  const entries = S.markdownDocs.entries || [];
+  return entries
+    .filter((entry) => /latest github-ready issues/i.test(entry.group || '') || /^#\s+\[/.test(entry.content || ''))
+    .map((entry) => {
+      const content = entry.content || '';
+      const title = content.match(/^#\s+(.+)$/m)?.[1] || entry.title || 'QA finding';
+      const summary = cleanMarkdownText(markdownSection(content, 'Summary')) || mdExcerpt(content, 220);
+      const actual = cleanMarkdownText(markdownSection(content, 'Actual Result')) || markdownField(content, 'Actual on developed page');
+      const expected = cleanMarkdownText(markdownSection(content, 'Expected Result')) || markdownField(content, 'Expected from Figma/design source');
+      const impact = cleanMarkdownText(markdownSection(content, 'Impact'));
+      const evidence = [
+        ...markdownBullets(markdownSection(content, 'Evidence')),
+        markdownField(content, 'Evidence'),
+      ].filter(Boolean);
+      const ruleRefs = markdownBullets(markdownSection(content, 'QA Docs Rules Applied'));
+      const screenshots = [...new Set([...content.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map((match) => match[1]))].slice(0, 4);
+
+      return {
+        code: issueCodeFromTitle(title),
+        title: cleanMarkdownText(title),
+        severity: dashboardSeverity(markdownField(content, 'Severity') || title),
+        path: markdownField(content, 'Viewport') || 'Figma vs developed page',
+        message: summary,
+        actual,
+        expected,
+        impact,
+        evidence,
+        ruleRefs,
+        screenshots,
+        sourcePath: entry.sourcePath,
+      };
+    })
+    .slice(0, 25);
+}
+
+function renderIssueDetails(issue) {
+  const blocks = [];
+  if (issue.expected) blocks.push(`<div><b>Expected:</b> ${escHtml(issue.expected)}</div>`);
+  if (issue.actual) blocks.push(`<div><b>Actual:</b> ${escHtml(issue.actual)}</div>`);
+  if (issue.impact) blocks.push(`<div><b>Impact:</b> ${escHtml(issue.impact)}</div>`);
+  if (issue.ruleRefs?.length) {
+    blocks.push(`<div><b>QA docs applied:</b><ul>${issue.ruleRefs.map((rule) => `<li>${escHtml(rule)}</li>`).join('')}</ul></div>`);
+  }
+  if (issue.evidence?.length) {
+    blocks.push(`<div><b>Evidence:</b><ul>${issue.evidence.map((item) => `<li>${escHtml(item)}</li>`).join('')}</ul></div>`);
+  }
+  if (issue.screenshots?.length) {
+    blocks.push(`<div><b>Screenshots:</b><div class="issue-shot-grid">${issue.screenshots.map((shot, index) => {
+      const normalized = String(shot).replace(/\\/g, '/');
+      return `<a class="issue-shot" href="${escHtml(normalized)}" target="_blank" rel="noopener"><img src="${escHtml(normalized)}" alt="QA screenshot ${index + 1}" onerror="this.style.display='none'"/><span>${escHtml(shot)}</span></a>`;
+    }).join('')}</div></div>`);
+  }
+  if (issue.sourcePath) blocks.push(`<div><b>Source:</b> ${escHtml(issue.sourcePath)}</div>`);
+  return blocks.length ? `<div class="issue-detail">${blocks.join('')}</div>` : '';
+}
+
+function renderIssueRow(issue, runId, index, options = {}) {
+  const rowId = options.idPrefix || 'iss';
+  const toggleFn = options.toggleFn || 'toggleIssue';
+  const extraButtons = options.extraButtons || '';
+  return `
+    <div class="irow" id="${rowId}-${runId}-${index}" onclick="${toggleFn}(${runId},${index})">
+      ${sevPill(issue.severity)}
+      <div class="irow-meta">
+        <div class="irow-code">${escHtml(issue.code || 'qa.issue').replace(/\./g, '.<wbr>')}</div>
+        <div class="irow-path">${escHtml(issue.path || 'Figma vs developed page')}</div>
+        <div class="irow-msg">${escHtml(issue.message || issue.title || 'QA issue detected')}</div>
+        ${renderIssueDetails(issue)}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+        <button class="btn btn-ghost btn-xs" style="white-space:nowrap" onclick="event.stopPropagation();${toggleFn}(${runId},${index})">Resolve</button>
+        ${extraButtons}
+      </div>
+    </div>`;
+}
+
 async function loadMarkdownDocs(force = false) {
   if (S.markdownDocs.entries.length && !force) {
     renderMarkdownDocs();
@@ -1199,26 +1331,15 @@ function selectRun(id) {
              <button class="btn btn-ghost btn-xs" onclick="downloadPDF(${id})">⬇ PDF</button>
            </div>
          </div>
-         <div id="issues-${id}">${issues.map((iss, i) => `
-           <div class="irow" id="iss-${id}-${i}" onclick="toggleIssue(${id},${i})">
-             ${sevPill(iss.severity)}
-             <div class="irow-meta">
-               <div class="irow-code">${iss.code.replace(/\./g, '.<wbr>')}</div>
-               <div class="irow-path">${iss.path}</div>
-               <div class="irow-msg">${iss.message}</div>
-             </div>
-             <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
-               <button class="btn btn-ghost btn-xs" style="white-space:nowrap"
-                 onclick="event.stopPropagation();toggleIssue(${id},${i})">Resolve</button>
-               <button class="btn btn-xs" id="gh-iss-btn-${id}-${i}"
-                 style="background:rgba(255,255,255,.06);border:1px solid var(--b2);color:var(--t2);white-space:nowrap"
-                 onclick="event.stopPropagation();fileSingleIssue(${id},${i})"
-                 title="${S.github?.connected ? 'File to GitHub' : 'Connect GitHub first'}">
-                 <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
-                 File
-               </button>
-             </div>
-           </div>`).join('')}</div>`}
+         <div id="issues-${id}">${issues.map((iss, i) => renderIssueRow(iss, id, i, {
+           extraButtons: `<button class="btn btn-xs" id="gh-iss-btn-${id}-${i}"
+             style="background:rgba(255,255,255,.06);border:1px solid var(--b2);color:var(--t2);white-space:nowrap"
+             onclick="event.stopPropagation();fileSingleIssue(${id},${i})"
+             title="${S.github?.connected ? 'File to GitHub' : 'Connect GitHub first'}">
+             <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+             File
+           </button>`,
+         })).join('')}</div>`}
 
     <div style="padding:11px 14px;border-top:1px solid var(--b1);display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:space-between">
       <span style="font-size:11px;color:var(--t2)">Figma: <code>${run.figmaFileExternalId || 'figma-file-placeholder'}</code></span>
@@ -1287,9 +1408,8 @@ async function runQA() {
   }
   renderPhases(QA_PHASES.length); // all done
 
-  // Generate result
-  const rand   = Math.random();
-  const status = rand < 0.35 ? 'pass' : rand < 0.68 ? 'warn' : 'fail';
+  // Prefer the generated QA markdown report so checklist rules, evidence, and screenshots are visible here.
+  await loadMarkdownDocs(true);
   const allIssues = [
     { code:'style.font-size',   severity:'minor',    path:'Hero / Headline',       message:`Font size differs by 2px (48px vs 46px)` },
     { code:'style.gap',         severity:'minor',    path:'Features / Grid',        message:`Item spacing differs by 4px (24px vs 28px)` },
@@ -1303,7 +1423,13 @@ async function runQA() {
     { code:'checklist.logo-alt', severity:'major', path:'Header / Logo', message:'Logo alt text does not include the site or company name' },
     { code:'checklist.logo-format', severity:'minor', path:'Header / Footer Logo', message:'Logo asset should use PNG, SVG, or WebP format' },
   ];
-  const issues = status === 'pass' ? [] : status === 'warn' ? allIssues.slice(0, 2) : allIssues;
+  const docIssues = latestMarkdownIssues();
+  const usingGeneratedReport = docIssues.length > 0;
+  const rand = Math.random();
+  const status = usingGeneratedReport
+    ? docIssues.some((issue) => issue.severity === 'critical') ? 'fail' : 'warn'
+    : rand < 0.35 ? 'pass' : rand < 0.68 ? 'warn' : 'fail';
+  const issues = usingGeneratedReport ? docIssues : status === 'pass' ? [] : status === 'warn' ? allIssues.slice(0, 2) : allIssues;
   const newId  = S.runCounter++;
   const newRun = {
     id: String(newId), tenantId: 1, projectId: 1,
@@ -1325,7 +1451,7 @@ async function runQA() {
     <div class="qa-result-header">
       <div>
         <div style="font-weight:600">Run #${newId} — ${status === 'pass' ? 'Design matches production' : 'Issues detected'}</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:2px">${new Date().toLocaleString()} &nbsp;·&nbsp; ${tol}px tolerance</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:2px">${new Date().toLocaleString()} &nbsp;·&nbsp; ${tol}px tolerance &nbsp;·&nbsp; ${usingGeneratedReport ? 'Generated QA markdown dataset' : 'Demo fallback dataset'}</div>
       </div>
       ${spill(status)}
     </div>
@@ -1336,17 +1462,7 @@ async function runQA() {
     </div>
     ${issues.length === 0
       ? `<div class="empty" style="padding:26px"><span style="color:var(--green);font-size:14px">✅ No issues — design perfectly matches production!</span></div>`
-      : `<div>${issues.map((iss, i) => `
-          <div class="irow" id="qi-${newId}-${i}" onclick="toggleQAIssue(${newId},${i})">
-            ${sevPill(iss.severity)}
-            <div class="irow-meta">
-              <div class="irow-code">${iss.code.replace(/\./g,'.<wbr>')}</div>
-              <div class="irow-path">${iss.path}</div>
-              <div class="irow-msg">${iss.message}</div>
-            </div>
-            <button class="btn btn-ghost btn-xs" style="flex-shrink:0"
-              onclick="event.stopPropagation();toggleQAIssue(${newId},${i})">Resolve</button>
-          </div>`).join('')}</div>`}
+      : `<div>${issues.map((iss, i) => renderIssueRow(iss, newId, i, { idPrefix: 'qi', toggleFn: 'toggleQAIssue' })).join('')}</div>`}
     <div style="padding:11px 14px;border-top:1px solid var(--b1);display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
       <button class="btn btn-ghost btn-sm" onclick="downloadCSV(${newId})">⬇ CSV</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadPDF(${newId})">⬇ PDF</button>
@@ -1384,9 +1500,23 @@ function downloadCSV(runId) {
   const det    = S.details[runId];
   const run    = det?.run || S.runs.find(r => String(r.id) === String(runId)) || {};
   const issues = det?.run?.issues || [];
-  const rows = [['Run ID', 'Status', 'Date', 'Tolerance (px)', 'Severity', 'Code', 'Path', 'Message']];
+  const rows = [['Run ID', 'Status', 'Date', 'Tolerance (px)', 'Severity', 'Code', 'Path', 'Message', 'Expected', 'Actual', 'QA Rules', 'Screenshots', 'Evidence']];
   if (issues.length) {
-    issues.forEach(i => rows.push([runId, run.status||'pass', fmtDate(run.createdAt), run.tolerancePx||5, i.severity, i.code, i.path, i.message]));
+    issues.forEach(i => rows.push([
+      runId,
+      run.status||'pass',
+      fmtDate(run.createdAt),
+      run.tolerancePx||5,
+      i.severity,
+      i.code,
+      i.path,
+      i.message,
+      i.expected || '',
+      i.actual || '',
+      (i.ruleRefs || []).join(' | '),
+      (i.screenshots || []).join(' | '),
+      (i.evidence || []).join(' | '),
+    ]));
   } else {
     rows.push([runId, run.status||'pass', fmtDate(run.createdAt), run.tolerancePx||5, '—', '—', '—', 'No issues detected']);
   }
@@ -1443,7 +1573,13 @@ ${issues.length > 0
        <td><span class="${i.severity}">${i.severity}</span></td>
        <td><code>${i.code}</code></td>
        <td>${i.path}</td>
-       <td>${i.message}</td>
+       <td>
+         <div>${i.message}</div>
+         ${i.expected ? `<div><strong>Expected:</strong> ${escHtml(i.expected)}</div>` : ''}
+         ${i.actual ? `<div><strong>Actual:</strong> ${escHtml(i.actual)}</div>` : ''}
+         ${i.ruleRefs?.length ? `<div><strong>QA docs:</strong><br>${i.ruleRefs.map((rule) => escHtml(rule)).join('<br>')}</div>` : ''}
+         ${i.screenshots?.length ? `<div><strong>Screenshots:</strong><br>${i.screenshots.map((shot) => escHtml(shot)).join('<br>')}</div>` : ''}
+       </td>
      </tr>`).join('')}</table>`
   : `<p style="color:#16a34a;font-weight:700;font-size:14px;margin-top:20px">
        ✅ No issues detected — design matches production.
@@ -1699,7 +1835,19 @@ function buildIssueBody(issue, run, runId) {
   sections.push(`## Design Source vs Developed Page\n\n- **Figma design URL:** ${figma}\n- **Developed page URL:** ${page}\n- **Component/path:** \`${issue.path}\`\n- **Check code:** \`${issue.code}\`\n- **QA run ID:** #${runId}\n- **Severity:** ${sev}\n- **Tolerance:** ${tol}px`);
 
   if ($('tmpl-expected')?.checked !== false) {
-    sections.push(`## Figma vs Developed Page Comparison\n\n- **Expected from Figma/design source:** The developed page should match the approved Figma design for \`${issue.path}\` within ${tol}px tolerance.\n- **Actual on developed page:** ${issue.message}\n- **Difference to resolve:** ${issue.code} mismatch at \`${issue.path}\`.`);
+    sections.push(`## Figma vs Developed Page Comparison\n\n- **Expected from Figma/design source:** ${issue.expected || `The developed page should match the approved Figma design for \`${issue.path}\` within ${tol}px tolerance.`}\n- **Actual on developed page:** ${issue.actual || issue.message}\n- **Difference to resolve:** ${issue.message || `${issue.code} mismatch at \`${issue.path}\`.`}`);
+  }
+
+  if (issue.ruleRefs?.length) {
+    sections.push(`## QA Docs Rules Applied\n\n${issue.ruleRefs.map((rule) => `- ${rule}`).join('\n')}`);
+  }
+
+  if (issue.evidence?.length || issue.screenshots?.length) {
+    const evidence = issue.evidence?.length ? issue.evidence.map((item) => `- ${item}`).join('\n') : '- See generated artifacts.';
+    const screenshots = issue.screenshots?.length
+      ? issue.screenshots.map((shot, index) => `- Screenshot ${index + 1}: ${shot}\n\n  ![Screenshot ${index + 1}](${String(shot).replace(/\\/g, '/')})`).join('\n')
+      : '- No screenshot evidence attached.';
+    sections.push(`## Evidence\n\n${evidence}\n\n## Screenshot Evidence\n\n${screenshots}`);
   }
 
   if ($('tmpl-reproduction')?.checked !== false) {

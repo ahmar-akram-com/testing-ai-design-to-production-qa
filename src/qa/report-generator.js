@@ -19,6 +19,23 @@ function figmaReference(config) {
   return config.figmaUrl || `${config.figmaFileKey}/${config.figmaNodeId}`;
 }
 
+function mdList(items, fallback = '- None') {
+  return items?.length ? items.map((item) => `- ${item}`).join('\n') : fallback;
+}
+
+function screenshotMarkdown(items = []) {
+  if (!items.length) {
+    return '- No screenshot evidence attached.';
+  }
+
+  return items
+    .map((item, index) => {
+      const normalized = String(item).replace(/\\/g, '/');
+      return `- Screenshot ${index + 1}: ${item}\n\n  ![Screenshot ${index + 1}](${normalized})`;
+    })
+    .join('\n');
+}
+
 function comparisonMode(figma) {
   if (figma.available && figma.screenshotPath) {
     return 'Exact Figma node extraction with screenshot evidence';
@@ -47,6 +64,12 @@ ${issue.summary}
 - Actual on developed page: ${issue.actual}
 - Difference to resolve: ${issue.summary}
 - Evidence: ${issue.evidence.length ? issue.evidence.join('; ') : 'See generated report artifacts.'}
+
+## QA Docs Rules Applied
+${mdList(issue.ruleRefs, '- No specific markdown rule match was attached; see the full QA rule dataset in the report.')}
+
+## Screenshot Evidence
+${screenshotMarkdown(issue.screenshots)}
 
 ## Standards Baseline
 ${STANDARDS_BASELINE.map((item) => `- ${item}`).join('\n')}
@@ -140,6 +163,10 @@ export async function generateReport({ config, rules, figma, website, comparison
       title: item.title,
       severity: item.severity,
       priority: item.priority,
+      viewport: item.viewport,
+      screenshots: item.screenshots,
+      evidence: item.evidence,
+      ruleRefs: item.ruleRefs,
     })),
     reportDir: config.outputDir,
     aiReviewPath: aiReview.reviewPath,
@@ -212,6 +239,25 @@ ${preflight?.files
 
 ${rules.map((rule) => `- ${rule.file}`).join('\n') || '- No rule files loaded'}
 
+## QA Docs Dataset Applied To Scan
+
+${rules
+  .map(
+    (rule) => `### ${path.basename(rule.file)}
+
+- Source: ${rule.file}
+- Characters loaded: ${rule.content.length}
+- Sample rules:
+${rule.content
+  .split(/\r?\n/)
+  .map((line) => line.trim())
+  .filter((line) => /^[-*]\s+/.test(line))
+  .slice(0, 8)
+  .map((line) => `  ${line}`)
+  .join('\n') || '  - No bullet rules found.'}`,
+  )
+  .join('\n\n') || 'No markdown QA docs were loaded.'}
+
 ## Figma Extraction
 
 - Available: ${figma.available}
@@ -226,6 +272,8 @@ ${website.scans
     (scan) => `### ${scan.viewport.name}
 
 - Screenshot: ${scan.screenshotPath}
+![${scan.viewport.name} screenshot](${scan.screenshotPath.replace(/\\/g, '/')})
+
 - DOM: ${scan.domPath}
 - Axe: ${scan.axePath}
 - Console/network: ${scan.consolePath}
@@ -241,7 +289,18 @@ ${comparison.issues.length ? comparison.issues.map((item, index) => `### ${index
 
 - Severity: ${item.severity}
 - Priority: ${item.priority}
-- Summary: ${item.summary}`).join('\n\n') : 'No issues detected by automated checks.'}
+- Viewport: ${item.viewport || 'All / preflight'}
+- Summary: ${item.summary}
+- Expected from Figma/design/rules: ${item.expected}
+- Actual on developed page: ${item.actual}
+- QA docs matched:
+${mdList(item.ruleRefs, '  - No direct markdown rule match attached.')}
+- Evidence:
+${mdList(item.evidence, '  - See generated artifacts.')}
+- Screenshots:
+${screenshotMarkdown(item.screenshots)}
+- Acceptance criteria:
+${item.acceptance.map((acceptance) => `  - [ ] ${acceptance}`).join('\n') || '  - [ ] Re-run QA and confirm the issue is resolved.'}`).join('\n\n') : 'No issues detected by automated checks.'}
 
 ## AI Review
 
