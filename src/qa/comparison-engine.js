@@ -66,6 +66,336 @@ function findMissingImageAlts(scan) {
   return scan.dom.images.filter((image) => image.alt === null);
 }
 
+function isExternalHref(href, pageUrl) {
+  if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    return false;
+  }
+
+  try {
+    const linkUrl = new URL(href, pageUrl);
+    const currentUrl = new URL(pageUrl);
+    return ['http:', 'https:'].includes(linkUrl.protocol) && linkUrl.origin !== currentUrl.origin;
+  } catch {
+    return false;
+  }
+}
+
+function findExternalLinksWithoutNewTab(scan) {
+  return scan.dom.links.filter((link) => isExternalHref(link.href, scan.dom.url) && link.target !== '_blank');
+}
+
+function findExternalLinksWithoutNoopener(scan) {
+  return scan.dom.links.filter((link) => {
+    if (!isExternalHref(link.href, scan.dom.url) || link.target !== '_blank') {
+      return false;
+    }
+
+    return !String(link.rel || '').split(/\s+/).includes('noopener');
+  });
+}
+
+function findLogoImages(scan) {
+  return scan.dom.images.filter((image) => {
+    const marker = `${image.className || ''} ${image.parentClassName || ''} ${image.parentHref || ''}`.toLowerCase();
+    return marker.includes('logo') || marker.includes('brand');
+  });
+}
+
+function findLogoIssues(scan) {
+  return findLogoImages(scan).reduce(
+    (acc, image) => {
+      const extension = image.src.split('?')[0].split('.').pop()?.toLowerCase() || '';
+
+      if (!image.parentHref) {
+        acc.notLinked.push(image);
+      }
+
+      if (!['png', 'svg', 'webp'].includes(extension)) {
+        acc.invalidFormat.push(image);
+      }
+
+      if (!image.alt || !/(rival|company|site)/i.test(image.alt)) {
+        acc.altText.push(image);
+      }
+
+      return acc;
+    },
+    { notLinked: [], invalidFormat: [], altText: [] },
+  );
+}
+
+function headingLevel(tag) {
+  return Number(tag.replace('h', ''));
+}
+
+function findSkippedHeadingLevels(scan) {
+  const skipped = [];
+  let previous = 0;
+
+  for (const heading of scan.dom.headings) {
+    const current = headingLevel(heading.tag);
+    if (previous && current - previous > 1) {
+      skipped.push({ previous, current, text: heading.text });
+    }
+    previous = current;
+  }
+
+  return skipped;
+}
+
+function findChecklistIssues(scan) {
+  const issues = [];
+  const externalWithoutNewTab = findExternalLinksWithoutNewTab(scan);
+  const externalWithoutNoopener = findExternalLinksWithoutNoopener(scan);
+  const logoIssues = findLogoIssues(scan);
+  const skippedHeadings = findSkippedHeadingLevels(scan);
+
+  if (!scan.dom.title || scan.dom.title.length < 8) {
+    issues.push(
+      issue({
+        title: `[QA Checklist]: Page title metadata is missing or too short on ${scan.viewport.name}`,
+        severity: 'Medium',
+        priority: 'P2',
+        summary: 'The client QA checklist requires the title tag to be present and properly formatted.',
+        actual: scan.dom.title || 'No title found.',
+        expected: 'A unique, relevant, production-ready title tag should be present.',
+        impact: 'Weak metadata reduces SEO quality, sharing clarity, and browser tab usability.',
+        evidence: [scan.domPath],
+        acceptance: ['Page title is unique, relevant, and descriptive.'],
+      }),
+    );
+  }
+
+  if (!scan.dom.metaDescription || scan.dom.metaDescription.length < 40) {
+    issues.push(
+      issue({
+        title: `[QA Checklist]: Meta description is missing or too short on ${scan.viewport.name}`,
+        severity: 'Medium',
+        priority: 'P2',
+        summary: 'The client QA checklist requires meta tags to be in proper format.',
+        actual: scan.dom.metaDescription || 'No meta description found.',
+        expected: 'A relevant meta description should summarize the page content.',
+        impact: 'Missing descriptions reduce SEO and social preview quality.',
+        evidence: [scan.domPath],
+        acceptance: ['Meta description is present, unique, and relevant to the page.'],
+      }),
+    );
+  }
+
+  if (externalWithoutNewTab.length) {
+    issues.push(
+      issue({
+        title: `[QA Checklist]: External links should open in a new tab on ${scan.viewport.name}`,
+        severity: 'Medium',
+        priority: 'P2',
+        summary: `${externalWithoutNewTab.length} external links do not use target="_blank".`,
+        actual: externalWithoutNewTab
+          .map((link) => `${link.text || link.ariaLabel || link.href} -> ${link.href}`)
+          .slice(0, 12)
+          .join('\n'),
+        expected: 'All external links should open in a new tab per the client QA checklist.',
+        impact: 'External navigation can pull users away from the implemented page unexpectedly.',
+        evidence: [scan.domPath],
+        acceptance: ['Every external link uses target="_blank".', 'Internal section/page links continue to open normally.'],
+      }),
+    );
+  }
+
+  if (externalWithoutNoopener.length) {
+    issues.push(
+      issue({
+        title: `[QA Checklist]: External new-tab links should use noopener on ${scan.viewport.name}`,
+        severity: 'Low',
+        priority: 'P3',
+        summary: `${externalWithoutNoopener.length} external new-tab links are missing rel="noopener".`,
+        actual: externalWithoutNoopener
+          .map((link) => `${link.text || link.ariaLabel || link.href} -> rel="${link.rel || ''}"`)
+          .slice(0, 12)
+          .join('\n'),
+        expected: 'External links opened in a new tab should include rel="noopener".',
+        impact: 'Missing noopener weakens security isolation for external tabs.',
+        evidence: [scan.domPath],
+        acceptance: ['External target="_blank" links include rel="noopener".'],
+      }),
+    );
+  }
+
+  if (logoIssues.notLinked.length) {
+    issues.push(
+      issue({
+        title: `[QA Checklist]: Logo should be clickable on ${scan.viewport.name}`,
+        severity: 'Medium',
+        priority: 'P2',
+        summary: `${logoIssues.notLinked.length} logo images are not wrapped in homepage links.`,
+        actual: logoIssues.notLinked.map((image) => image.src).join('\n'),
+        expected: 'Logo should be clickable and link to the homepage.',
+        impact: 'Users expect logo clicks to return to the homepage.',
+        evidence: [scan.domPath],
+        acceptance: ['All logo instances link to the approved homepage URL.'],
+      }),
+    );
+  }
+
+  if (logoIssues.invalidFormat.length) {
+    issues.push(
+      issue({
+        title: `[QA Checklist]: Logo should use PNG, SVG, or WebP on ${scan.viewport.name}`,
+        severity: 'Low',
+        priority: 'P3',
+        summary: `${logoIssues.invalidFormat.length} logo images use a non-preferred format.`,
+        actual: logoIssues.invalidFormat.map((image) => image.src).join('\n'),
+        expected: 'Logo assets should use PNG, SVG, or WebP per the client QA checklist.',
+        impact: 'Non-preferred logo formats can reduce sharpness or optimization quality.',
+        evidence: [scan.domPath],
+        acceptance: ['Logo files use PNG, SVG, or WebP and remain sharp across device densities.'],
+      }),
+    );
+  }
+
+  if (logoIssues.altText.length) {
+    issues.push(
+      issue({
+        title: `[QA Checklist]: Logo alt text should include site or company name on ${scan.viewport.name}`,
+        severity: 'Medium',
+        priority: 'P2',
+        summary: `${logoIssues.altText.length} logo images do not have descriptive company/site alt text.`,
+        actual: logoIssues.altText.map((image) => `${image.src} -> alt="${image.alt || ''}"`).join('\n'),
+        expected: 'Logo alt text should include the site name or company name.',
+        impact: 'Screen reader users may not receive the brand identity from logo images.',
+        evidence: [scan.domPath],
+        acceptance: ['Logo alt text includes the site name or company name, or the linked logo has an equivalent accessible name approved by QA.'],
+      }),
+    );
+  }
+
+  if (skippedHeadings.length) {
+    issues.push(
+      issue({
+        title: `[QA Checklist]: Heading hierarchy skips levels on ${scan.viewport.name}`,
+        severity: 'Medium',
+        priority: 'P2',
+        summary: `${skippedHeadings.length} heading hierarchy skips were detected.`,
+        actual: skippedHeadings.map((item) => `h${item.previous} -> h${item.current}: ${item.text}`).join('\n'),
+        expected: 'Headings should follow a logical h1 to h6 order.',
+        impact: 'Skipped heading levels can reduce scanability, accessibility, and SEO quality.',
+        evidence: [scan.domPath],
+        acceptance: ['Heading levels follow a logical hierarchy without skipped levels.'],
+      }),
+    );
+  }
+
+  return issues;
+}
+
+function collectPreflightIssues(preflight) {
+  if (!preflight) {
+    return [];
+  }
+
+  const issues = [];
+  const developedUrl = preflight.urls?.find((item) => item.name === 'Developed page URL');
+  const figmaUrl = preflight.urls?.find((item) => item.name === 'Figma design URL');
+  const inaccessibleFiles = preflight.files?.filter((file) => !file.accessible) || [];
+
+  if (developedUrl && !developedUrl.accessible) {
+    issues.push(
+      issue({
+        title: '[Security]: Developed page URL is not accessible during preflight',
+        severity: developedUrl.requiresAuthentication ? 'High' : 'Medium',
+        priority: developedUrl.requiresAuthentication ? 'P1' : 'P2',
+        summary: `Preflight could not access the developed URL. Status: ${developedUrl.status || 'unavailable'}.`,
+        actual: developedUrl.error || `HTTP status ${developedUrl.status}. Auth challenge: ${developedUrl.authChallenge || 'none'}.`,
+        expected: 'Developed page URL should be reachable before visual and checklist comparison runs. If HTTP authentication is required, provide valid HTTP_AUTH_USERNAME and HTTP_AUTH_PASSWORD.',
+        impact: 'Visual capture, DOM extraction, and UI/UX accuracy are reduced when the target page is blocked or authenticated without credentials.',
+        evidence: [preflight.outputPath],
+        acceptance: [
+          'Target URL returns a successful HTTP status during preflight.',
+          'Protected targets provide valid HTTP basic auth credentials to the QA runner.',
+          'Rerun npm run qa:design and confirm the developed page is accessible.',
+        ],
+      }),
+    );
+  }
+
+  if (figmaUrl && !figmaUrl.accessible) {
+    issues.push(
+      issue({
+        title: '[Security]: Figma design URL accessibility preflight failed',
+        severity: figmaUrl.requiresAuthentication ? 'Medium' : 'Low',
+        priority: 'P2',
+        summary: `Preflight could not confirm browser access to the Figma design URL. Status: ${figmaUrl.status || 'unavailable'}.`,
+        actual: figmaUrl.error || `HTTP status ${figmaUrl.status}. Auth challenge: ${figmaUrl.authChallenge || 'none'}.`,
+        expected: 'The Figma design URL should be reachable, and exact extraction should use FIGMA_TOKEN with file access.',
+        impact: 'QA can continue with available data, but design-source confidence is lower until access is confirmed.',
+        evidence: [preflight.outputPath],
+        acceptance: [
+          'Figma design URL is accessible to the QA environment or FIGMA_TOKEN provides exact file access.',
+          'Rerun npm run qa:design and verify Figma preflight and extraction status.',
+        ],
+      }),
+    );
+  }
+
+  if (preflight.figmaApi && !preflight.figmaApi.accessible) {
+    issues.push(
+      issue({
+        title: '[Security]: Figma API authentication is unavailable',
+        severity: 'Medium',
+        priority: 'P1',
+        summary: 'Exact Figma node extraction cannot run because API authentication or node access is unavailable.',
+        actual: preflight.figmaApi.error || `Figma API status ${preflight.figmaApi.status}.`,
+        expected: 'FIGMA_TOKEN should have access to the exact Figma file and node under test.',
+        impact: 'Pixel, typography, spacing, and color accuracy are limited without exact Figma node data.',
+        evidence: [preflight.outputPath],
+        acceptance: ['Set FIGMA_TOKEN with file access.', 'Confirm FIGMA_FILE_KEY and FIGMA_NODE_ID are correct.'],
+      }),
+    );
+  }
+
+  if (inaccessibleFiles.length) {
+    issues.push(
+      issue({
+        title: '[Security]: One or more Markdown checklist files are not accessible',
+        severity: 'Medium',
+        priority: 'P2',
+        summary: `${inaccessibleFiles.length} Markdown rule/checklist files could not be read.`,
+        actual: inaccessibleFiles.map((file) => `${file.file}: ${file.error}`).join('\n'),
+        expected: 'All QA rule and checklist files should be readable before comparison so the full dataset is applied.',
+        impact: 'Checklist coverage and result accuracy can be incomplete if rule files are missing or locked.',
+        evidence: [preflight.outputPath],
+        acceptance: ['All configured Markdown checklist/rule files are readable.', 'Rerun npm run qa:design and verify preflight file access passes.'],
+      }),
+    );
+  }
+
+  for (const urlCheck of preflight.urls || []) {
+    for (const finding of urlCheck.securityFindings || []) {
+      const exposedSecret = finding.includes('Potential exposed');
+      issues.push(
+        issue({
+          title: `[Security]: ${urlCheck.name} - ${finding}`,
+          severity: exposedSecret || finding.includes('HTTPS') || finding.includes('Strict-Transport-Security') ? 'Medium' : 'Low',
+          priority: exposedSecret ? 'P1' : 'P3',
+          summary: finding,
+          actual: `${urlCheck.url} response headers: ${JSON.stringify(urlCheck.headers)}`,
+          expected: exposedSecret
+            ? 'Client HTML should not expose tokens, API keys, credentials, or secret-like values.'
+            : 'Developed pages should expose baseline security headers appropriate for the deployment environment.',
+          impact: exposedSecret
+            ? 'Exposed token-like values in browser-delivered HTML can weaken access control and should be removed or replaced with server-side session handling.'
+            : 'Missing security headers can weaken browser protections or deployment readiness.',
+          evidence: [preflight.outputPath],
+          acceptance: exposedSecret
+            ? ['Remove token-like values from browser-delivered HTML.', 'Use server-side credentials or short-lived session APIs where authentication is required.', 'Rerun npm run qa:design and confirm content security findings are clear.']
+            : ['Security header policy is configured or the missing header is documented as intentionally omitted for local development.'],
+        }),
+      );
+    }
+  }
+
+  return issues;
+}
+
 function collectTextMismatchIssues(figma, website) {
   if (!figma.available || !figma.textNodes.length) {
     return [];
@@ -100,10 +430,12 @@ function collectTextMismatchIssues(figma, website) {
   ];
 }
 
-export async function compareDesignToWebsite({ figma, website, config }) {
+export async function compareDesignToWebsite({ figma, website, config, preflight }) {
   const issues = [];
   const comparisonDir = path.join(config.outputDir, 'comparison');
   await fs.mkdir(comparisonDir, { recursive: true });
+
+  issues.push(...collectPreflightIssues(preflight));
 
   if (!figma.available) {
     issues.push(
@@ -251,6 +583,8 @@ export async function compareDesignToWebsite({ figma, website, config }) {
         }),
       );
     }
+
+    issues.push(...findChecklistIssues(scan));
   }
 
   issues.push(...collectTextMismatchIssues(figma, website));

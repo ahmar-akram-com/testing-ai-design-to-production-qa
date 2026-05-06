@@ -7,6 +7,7 @@ dotenv.config({ quiet: true });
 
 const DEFAULT_FIGMA_URL =
   'https://www.figma.com/design/EXV5Pmw3DFPKyUwVvM6rZP/Rival-Website?node-id=13331-2&p=f&t=fy1LQiasuW4JTImj-0';
+const DEFAULT_GITHUB_REPO = 'ahmar-akram-com/testing-ai-design-to-production-qa';
 
 function parseArgs(argv) {
   const args = {};
@@ -59,6 +60,7 @@ export function loadConfig(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   const figmaUrl = args.figmaUrl || process.env.FIGMA_URL || DEFAULT_FIGMA_URL;
   const parsedFigma = parseFigmaUrl(figmaUrl);
+  const targetUrl = args.targetUrl || process.env.TARGET_URL || 'http://127.0.0.1:4173/';
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const reportsRoot = path.resolve('reports', 'design-qa');
   const outputDir = path.join(reportsRoot, timestamp);
@@ -70,9 +72,13 @@ export function loadConfig(argv = process.argv.slice(2)) {
     figmaToken: process.env.FIGMA_TOKEN || '',
     figmaFileKey: args.figmaFileKey || process.env.FIGMA_FILE_KEY || parsedFigma.fileKey,
     figmaNodeId: args.figmaNodeId || process.env.FIGMA_NODE_ID || parsedFigma.nodeId,
-    targetUrl: args.targetUrl || process.env.TARGET_URL || 'http://127.0.0.1:5173/',
+    targetUrl,
+    httpAuth: {
+      username: args.httpAuthUsername || process.env.HTTP_AUTH_USERNAME || process.env.TARGET_HTTP_USERNAME || '',
+      password: args.httpAuthPassword || process.env.HTTP_AUTH_PASSWORD || process.env.TARGET_HTTP_PASSWORD || '',
+    },
     githubToken: process.env.GITHUB_TOKEN || '',
-    githubRepo: args.githubRepo || process.env.GITHUB_REPO || 'ComputanTeam/uoft-facilities-services',
+    githubRepo: args.githubRepo || process.env.GITHUB_REPO || DEFAULT_GITHUB_REPO,
     createIssues:
       args.createIssues === true ||
       args.createIssues === 'true' ||

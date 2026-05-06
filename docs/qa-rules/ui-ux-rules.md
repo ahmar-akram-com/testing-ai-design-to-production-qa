@@ -16,7 +16,7 @@
 
 ## Accessibility
 
-- Enforce WCAG 2.1 A/AA automated checks.
+- Enforce WCAG 2.2 A/AA automated checks where tool coverage exists, with WCAG 2.1 A/AA automated tags retained for axe compatibility.
 - Require one logical `h1`, sequential headings, visible focus states, keyboard access, semantic landmarks, and useful alt text.
 - Flag low contrast, missing accessible names, empty controls, keyboard traps, and focus order defects.
 

@@ -15,6 +15,10 @@ on:
         required: true
         default: "false"
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   design-qa:
     runs-on: ubuntu-latest
@@ -22,8 +26,8 @@ jobs:
       FIGMA_URL: ${{ inputs.figma_url }}
       FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
       TARGET_URL: ${{ inputs.target_url }}
-      GITHUB_TOKEN: ${{ secrets.QA_GITHUB_TOKEN }}
-      GITHUB_REPO: ComputanTeam/uoft-facilities-services
+      GITHUB_TOKEN: ${{ secrets.QA_GITHUB_TOKEN || github.token }}
+      GITHUB_REPO: ahmar-akram-com/testing-ai-design-to-production-qa
       CREATE_GITHUB_ISSUES: ${{ inputs.create_issues }}
       AI_PROVIDER: none
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

@@ -4,6 +4,7 @@
   "description": "Rival blog page recreation and frontend UI/UX QA checklist.",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
+    "prebuild": "node scripts/sync-dashboard-markdown.js",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "qa": "npm run build && playwright test",

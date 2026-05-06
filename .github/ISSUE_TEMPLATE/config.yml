@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Run Design QA Workflow
+    url: https://github.com/ahmar-akram-com/testing-ai-design-to-production-qa/actions/workflows/design-qa.yml
+    about: Run the dashboard-backed Figma vs developed page QA workflow before filing manual defects.
+  - name: Open QA Dashboard
+    url: https://ahmar-akram-com.github.io/testing-ai-design-to-production-qa/dashboard.html
+    about: Review dashboard status, QA docs, and GitHub-ready issue output.
+

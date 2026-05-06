@@ -15,6 +15,14 @@ async function captureViewport(browser, config, viewport) {
     viewport: { width: viewport.width, height: viewport.height },
     isMobile: Boolean(viewport.isMobile),
     deviceScaleFactor: viewport.isMobile ? 2 : 1,
+    ...(config.httpAuth.username && config.httpAuth.password
+      ? {
+          httpCredentials: {
+            username: config.httpAuth.username,
+            password: config.httpAuth.password,
+          },
+        }
+      : {}),
   });
   const page = await context.newPage();
   const consoleMessages = [];
@@ -46,6 +54,7 @@ async function captureViewport(browser, config, viewport) {
     });
   } catch (error) {
     navigationError = error.message;
+    await page.goto('about:blank', { waitUntil: 'domcontentloaded' }).catch(() => {});
     await page.setContent(`
       <!doctype html>
       <html lang="en">
@@ -71,6 +80,8 @@ async function captureViewport(browser, config, viewport) {
 
     return {
       title: document.title,
+      metaDescription: document.querySelector('meta[name="description"]')?.getAttribute('content') || '',
+      metaViewport: document.querySelector('meta[name="viewport"]')?.getAttribute('content') || '',
       url: window.location.href,
       status: document.readyState,
       viewport: { width: window.innerWidth, height: window.innerHeight },
@@ -86,10 +97,19 @@ async function captureViewport(browser, config, viewport) {
         text: text(node.textContent),
         href: node.getAttribute('href') || '',
         ariaLabel: node.getAttribute('aria-label') || '',
+        target: node.getAttribute('target') || '',
+        rel: node.getAttribute('rel') || '',
+        hasImage: Boolean(node.querySelector('img')),
+        imageAlt: node.querySelector('img')?.getAttribute('alt') ?? null,
+        imageSrc: node.querySelector('img')?.currentSrc || node.querySelector('img')?.src || '',
       })),
       images: [...document.querySelectorAll('img')].map((node) => ({
         src: node.currentSrc || node.src,
         alt: node.getAttribute('alt'),
+        className: String(node.className || ''),
+        parentTag: node.parentElement?.tagName.toLowerCase() || '',
+        parentClassName: String(node.parentElement?.className || ''),
+        parentHref: node.closest('a')?.getAttribute('href') || '',
         width: node.naturalWidth,
         height: node.naturalHeight,
         renderedWidth: Math.round(node.getBoundingClientRect().width),
@@ -104,6 +124,28 @@ async function captureViewport(browser, config, viewport) {
         acc[tag] = document.querySelectorAll(tag).length;
         return acc;
       }, {}),
+      forms: [...document.querySelectorAll('form')].map((form) => ({
+        action: form.getAttribute('action') || '',
+        method: form.getAttribute('method') || 'get',
+        inputs: [...form.querySelectorAll('input,textarea,select,button')].map((node) => ({
+          tag: node.tagName.toLowerCase(),
+          type: node.getAttribute('type') || '',
+          name: node.getAttribute('name') || '',
+          required: Boolean(node.required),
+          placeholder: node.getAttribute('placeholder') || '',
+          ariaLabel: node.getAttribute('aria-label') || '',
+          text: text(node.textContent),
+        })),
+      })),
+      controls: [...document.querySelectorAll('input,textarea,select,button')].map((node) => ({
+        tag: node.tagName.toLowerCase(),
+        type: node.getAttribute('type') || '',
+        name: node.getAttribute('name') || '',
+        required: Boolean(node.required),
+        placeholder: node.getAttribute('placeholder') || '',
+        ariaLabel: node.getAttribute('aria-label') || '',
+        text: text(node.textContent),
+      })),
       css: all.slice(0, 500).map((node) => {
         const styles = window.getComputedStyle(node);
         return {

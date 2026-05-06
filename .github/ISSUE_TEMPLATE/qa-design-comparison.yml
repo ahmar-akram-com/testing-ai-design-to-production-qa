@@ -1,0 +1,161 @@
+name: Design QA Comparison
+description: International-standard QA defect template for comparing a Figma design file with a developed page URL.
+title: "[QA]: "
+labels:
+  - bug
+  - design-qa
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for design-to-production QA defects. The Figma design URL and developed page URL are required so every issue can be traced to the source design and the implemented page.
+  - type: input
+    id: figma_url
+    attributes:
+      label: Figma design URL
+      description: Required. Link to the exact Figma file, frame, component, or node used as the source of truth.
+      placeholder: https://www.figma.com/design/...
+    validations:
+      required: true
+  - type: input
+    id: developed_page_url
+    attributes:
+      label: Developed page URL
+      description: Required. Link to the local, staging, preview, or production page being tested.
+      placeholder: https://example.com/page-under-test
+    validations:
+      required: true
+  - type: input
+    id: figma_node
+    attributes:
+      label: Figma frame or node ID
+      description: Exact frame/node ID when available.
+      placeholder: 13331:2
+    validations:
+      required: false
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: User or business impact.
+      options:
+        - Critical - blocks release or core user journey
+        - High - major visible, accessibility, or functional defect
+        - Medium - noticeable defect with workaround
+        - Low - minor polish or content issue
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Fix order for the delivery team.
+      options:
+        - P0 - fix immediately
+        - P1 - fix before release
+        - P2 - fix in current QA cycle
+        - P3 - backlog or polish
+    validations:
+      required: true
+  - type: checkboxes
+    id: standards
+    attributes:
+      label: Standards and quality gates affected
+      options:
+        - label: Visual fidelity to approved Figma design
+        - label: Responsive layout across desktop, tablet, and mobile
+        - label: Accessibility aligned to WCAG 2.2 AA
+        - label: Keyboard and focus usability
+        - label: Semantic HTML, headings, landmarks, and accessible names
+        - label: Content, copy, metadata, and localization readiness
+        - label: Runtime stability, console errors, network failures, or asset loading
+        - label: Performance UX, layout shift, image sizing, or perceived load quality
+    validations:
+      required: true
+  - type: checkboxes
+    id: viewports
+    attributes:
+      label: Tested viewport or device coverage
+      options:
+        - label: Desktop
+        - label: Tablet
+        - label: Mobile
+        - label: Cross-browser smoke check
+        - label: Assistive technology or keyboard smoke check
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One clear sentence describing the defect.
+      placeholder: The developed hero spacing does not match the approved Figma frame on mobile.
+    validations:
+      required: true
+  - type: textarea
+    id: comparison
+    attributes:
+      label: Figma vs developed page comparison
+      description: Explain what Figma shows, what the developed page shows, and the measurable difference.
+      placeholder: |
+        Figma expected:
+        Developed page actual:
+        Difference:
+        Measurement/evidence:
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide exact steps so another QA or developer can reproduce the issue.
+      placeholder: |
+        1. Open the developed page URL.
+        2. Open the Figma design URL.
+        3. Compare the affected section at the tested viewport.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: What happened on the developed page.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What should happen according to the Figma design, product requirement, or standard.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Explain the user, accessibility, brand, compliance, conversion, or release impact.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Add screenshots, visual diff paths, DOM/CSS evidence, console logs, axe reports, videos, or report artifact links.
+      placeholder: |
+        - Figma screenshot:
+        - Developed page screenshot:
+        - Visual diff:
+        - QA report:
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: Define the exact conditions required to close the issue.
+      placeholder: |
+        - [ ] Developed page matches the approved Figma layout at all required viewports.
+        - [ ] No WCAG 2.2 AA automated violations are introduced.
+        - [ ] QA evidence is attached after the fix.
+    validations:
+      required: true

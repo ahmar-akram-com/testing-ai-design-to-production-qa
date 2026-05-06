@@ -5,7 +5,7 @@ const asset = (name) => `/figma-assets/${name}`;
 document.querySelector('#app').innerHTML = `
   <header class="site-header">
     <nav class="nav-shell" aria-label="Primary navigation">
-      <a class="brand" href="#" aria-label="Rival home">
+      <a class="brand" href="https://www.rivaltech.com/" aria-label="Rival home">
         <img src="${asset('20-f7c88b5c.jpg')}" alt="" />
       </a>
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-menu">
@@ -16,6 +16,7 @@ document.querySelector('#app').innerHTML = `
         <a href="#solutions">Solutions</a>
         <a href="#resources">Resources</a>
         <a href="#article">Blog</a>
+        <a href="/dashboard.html">QA Dashboard</a>
       </div>
       <a class="nav-cta" href="#demo">Get a demo</a>
     </nav>
@@ -122,7 +123,7 @@ document.querySelector('#app').innerHTML = `
           <a href="#solutions">Workflow review</a>
           <a href="#demo">Success metrics</a>
         </div>
-        <a class="guide-card" id="demo" href="#">
+        <a class="guide-card" id="demo" href="https://www.rivaltech.com/request-a-demo">
           <img src="${asset('05-dd597768.jpg')}" alt="" />
           <span>Get the buyer checklist</span>
         </a>
@@ -135,17 +136,17 @@ document.querySelector('#app').innerHTML = `
         <h2 id="related-title">Keep building customer closeness</h2>
       </div>
       <div class="related-grid">
-        <a class="post-card" href="#">
+        <a class="post-card" href="https://www.rivaltech.com/blog">
           <img src="${asset('13-a9db680c.jpg')}" alt="" />
           <span>Research Ops</span>
           <h3>Five ways to shorten your insight cycle</h3>
         </a>
-        <a class="post-card" href="#">
+        <a class="post-card" href="https://www.rivaltech.com/blog">
           <img src="${asset('10-0fde8e18.jpg')}" alt="" />
           <span>Community</span>
           <h3>What great respondent experiences have in common</h3>
         </a>
-        <a class="post-card" href="#">
+        <a class="post-card" href="https://www.rivaltech.com/blog">
           <img src="${asset('67-0490de6f.jpg')}" alt="" />
           <span>AI Research</span>
           <h3>How insight teams can use AI with confidence</h3>
@@ -165,6 +166,7 @@ document.querySelector('#app').innerHTML = `
         <a href="#solutions">Solutions</a>
         <a href="#resources">Resources</a>
         <a href="#demo">Contact</a>
+        <a href="/dashboard.html">QA Dashboard</a>
       </div>
       <div class="store-badges" aria-label="Download apps">
         <img src="${asset('31-32cca8c2.jpg')}" alt="Get it on Google Play" />

@@ -42,4 +42,21 @@ test.describe('Rival blog page UI and UX audit', () => {
       ).toBeVisible();
     }
   });
+
+  test('serves the integrated design QA dashboard with required comparison inputs', async ({ page }) => {
+    await page.goto('/dashboard.html');
+
+    await expect(page).toHaveTitle('Design QA Cockpit');
+    await expect(page.locator('.brand-text b')).toHaveText('Design QA');
+
+    await page.locator('button[data-view="qa"]').click();
+
+    await expect(page.locator('#qa-figma')).toHaveValue(/figma\.com\/design/);
+    await expect(page.locator('#qa-page')).toHaveValue(/127\.0\.0\.1:4173/);
+    await expect(page.locator('#qa-btn')).toBeVisible();
+
+    await page.locator('button[data-view="docs"]').click();
+    await expect(page.locator('#md-count')).not.toHaveText('0');
+    await expect(page.locator('#md-preview')).toContainText('QA');
+  });
 });

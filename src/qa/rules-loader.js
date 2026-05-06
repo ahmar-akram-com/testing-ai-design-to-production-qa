@@ -1,6 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+const DEFAULT_LOCAL_CHECKLIST =
+  process.platform === 'win32' ? 'C:\\Users\\ahmar\\OneDrive\\Desktop\\QA checklist.md' : '';
+
 async function readMarkdownFiles(dir) {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -25,7 +28,8 @@ export async function loadRules() {
   const files = [
     path.resolve('docs', 'frontend-ui-ux-testing.md'),
     ...(await readMarkdownFiles(path.resolve('docs', 'qa-rules'))),
-  ];
+    process.env.QA_CHECKLIST_PATH || DEFAULT_LOCAL_CHECKLIST,
+  ].filter(Boolean);
   const loaded = [];
 
   for (const file of [...new Set(files)]) {
